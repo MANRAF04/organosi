@@ -18,6 +18,8 @@ main:
 	move $a0,$s0		#Prints number
 	syscall
 	
+	bltz $s0,alwZero	#We know that the msb of negative numbers is 1 so there are no leading zeroes
+	
 	#clz $t1,$s0
 	li $t1,32
 	
@@ -28,8 +30,6 @@ countZeroes:
 	j countZeroes
 	
 rest:
-	
-	
 	li $v0,4
 	la $a0,has_text
 	syscall
@@ -44,3 +44,7 @@ rest:
 	
 	la $v0,10		#Exits Program
 	syscall
+
+alwZero:
+	li $t1,0
+	j rest
