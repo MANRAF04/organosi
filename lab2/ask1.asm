@@ -1,34 +1,78 @@
+.macro READ_INT
+li $v0, 5
+syscall
+.end_macro
+
+.macro PRINT_STR(%s)
 .data
-in1: .word -5, 0, 2, 11
-in2: .word -2, 0, 1, 13, 15
-size1: .word 4
-size2: .word 5
+str: .asciiz %s
+	.text
+	li $v0,4
+	la $a0,str
+	syscall
+.end_macro
+
+.macro READ_INT_ARR (%arr,%size)
+li $t4,0
+
+loop:
+	bge $t4,%size,end
+	READ_INT
+	move $t3,$v0
+	sw $t3,0(%arr) 
+	addi %arr,%arr,4
+	addi $t4,$t4,1
+	j loop 
+end:
+.end_macro
+
+.macro PRINT_INT_ARR (%arr,%size)
+li $t4,0
+loop:
+	bge $t4,%size,end
+	lw  $a0,0(%arr) 
+	addi %arr,%arr,4
+	addi $t4,$t4,1
+	li $v0,1
+	syscall
+	PRINT_STR("\n")
+	j loop 
+end:
+	PRINT_STR("END OF ARRAY\n")
+.end_macro
+
+.data
+prompt: .asciiz "Enter an integer: "
+.align 2
+in1: .space 1000
+.align 2
+in2: .space 1000
+.align 2
+out: .space 2000
+
 
 .text
-.globl main
 main:
-    la		$a1, in1		# 
-    la		$a2, in2		# 
-    
-    lw		$a3, size1		#
-    lw		$a0, size2		#
-    add     $t1, $a0, $a3
-    sll		$t1, $t1, 2			# $ = $t1 << 0
-    
-    sub		$sp, $sp, $t1		# $sp = $sp + $t1
-    
-    jal		merge				# jump to merge and save position to $ra
-    
+    	la $a0, prompt
+    	li $v0, 4
+    	syscall
+  	
+  	READ_INT
+	move $s1,$v0
+	la $s0,in1
+	READ_INT_ARR($s0,$s1)
+	la $s0,in1
+	PRINT_STR("\tArray 1\n")
+	PRINT_INT_ARR($s0,$s1)
 
-merge:
-    lw		$t1, $a3		# size1
-    lw		$t2, $a0		# size2
-    la      $t3, $a1
-    la      $t4, $a2
-    la      $t5, $s8
-
-
+  	READ_INT
+	move $s3,$v0
+	la $s2,in2
+	READ_INT_ARR($s2,$s3)  
+  	la $s2,in2
+  	PRINT_STR("\tArray 2\n")
+  	PRINT_INT_ARR($s2,$s3)  	
+  	
 exit:
-    li		$v0, 10		# $v0 = 10
-    syscall
-    
+	li $v0, 10
+	syscall
