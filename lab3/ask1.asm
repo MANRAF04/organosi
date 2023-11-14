@@ -32,10 +32,20 @@ main:
 	move $a1, $s0
 
 	jal is_symmetric
+	move $s1, $v0
 
-	move $a0, $v0
-	li $v0, 1
+	print_str("String ")
+	la $a0,input
+	li $v0, 4
 	syscall
+
+	beqz $s1,notsym
+	print_str(" is symmetric.\n")
+
+	j end
+	notsym:
+		print_str(" is not symmetric.\n")
+		
 
 	end:
 		li $v0, 10
@@ -48,7 +58,7 @@ rmEnter:
 	loop:
 		addi $v0,$v0,1	
 		lb $t0, ($a0)	#Loads current char
-		
+
 		beq $t0, 10, foundIt	#If it found '\n' changes it to '\0'
 
 		add $a0, $a0, 1
