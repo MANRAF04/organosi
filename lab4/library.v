@@ -61,10 +61,12 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
   input [31:0] wd;
   output [31:0] rdA, rdB;
   reg [31:0] mem [0: 31];  // array of 32 32-bit registers
+  integer i;
+
 
   always @(negedge clk, reset) begin
     if (!reset) begin     // RESET mem to 0
-        for (integer i = 0; i < 32; i++) begin
+        for (i = 0; i < 32; i = i + 1) begin
           mem[i] <= 0;
         end
       end
