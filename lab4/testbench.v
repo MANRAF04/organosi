@@ -4,7 +4,10 @@
 // It only needs to instantiate CPU, Drive the inputs to CPU (clock, reset)
 // and monitor the outputs. This is what all testbenches do
 
+`include "library.v"
+
 `timescale 1ns/1ps
+`define clock_period 5 
 
 module cpu_tb;
 
@@ -14,12 +17,15 @@ reg         wen;
 reg   [31:0] wd;
 wire  [31:0] rdA, rdB;
 integer i;
+reg zero;
+reg [3:0] op;
+
 
 // Instantiate regfile module
 RegFile regs(clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
 // YOU ALSO NEED TO INSTATIATE THE ALU HERE 
-
+ALU alu(wd, zero, rdA, rdB, op);
 
 
 initial begin  // Ta statements apo ayto to begin mexri to "end" einai seiriaka
