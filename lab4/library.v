@@ -1,6 +1,4 @@
-  
 `timescale 1ns/1ps
-
 
 
 
@@ -11,6 +9,7 @@
 //             subtraction (op = 6)
 //             slt  (op = 7)
 //             nor (op = 12)
+
 module ALU (out, zero, inA, inB, op);
   parameter N = 8;
   output [N-1:0] out;
@@ -20,7 +19,7 @@ module ALU (out, zero, inA, inB, op);
 
   reg    [N-1:0] result;
  // PLACE YOUR VERILOG CODE HERE
-  always @* begin
+  always @(*) begin
     case (op)
       4'b0000: // bitwise and
         result = inA & inB;
@@ -35,7 +34,7 @@ module ALU (out, zero, inA, inB, op);
       4'b1100: // nor
         result = ~(inA | inB);
       default: // Default case
-        result = 1;
+        result = {N{1'bx}};     // Don't care x result
     endcase
 
   end
@@ -50,10 +49,39 @@ endmodule
 // Register File Module. Read ports: address raA, data rdA
 //                            address raB, data rdB
 //                Write port: address wa, data wd, enable wen.
-// module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
- // PLACE YOUR VERILOG CODE HERE
- // Remember that the register file should be written at the negative edge of the input clock 
 
-// endmodule
+module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
+  input clk;
+  input reset;
+  input [4:0] raA, raB;
+  input [4:0] wa;
+  input wen;
+  input [31:0] wd;
+  output [31:0] rdA, rdB;
+  reg [31:0] mem [0: 31];  // array of 32 32-bit registers
+
+  always @(negedge clk) begin
+    if (!reset) begin     // RESET mem to 0
+        for (int i = 0; i < 32; i++) begin
+          mem[i] <= 0;
+        end
+      end
+
+    else begin
+      rdA <= mem[raA];
+      rdB <= mem[raB];
+      if (wen) begin
+        mem[wa] <= wd;
+      end
+      
+    end
+
+  end
+
+
+ //PLACE YOUR VERILOG CODE HERE
+ //Remember that the register file should be written at the negative edge of the input clock 
+
+endmodule
