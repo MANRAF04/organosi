@@ -10,6 +10,8 @@
 //             slt  (op = 7)
 //             nor (op = 12)
 
+ // PLACE YOUR VERILOG CODE HERE
+
 module ALU (out, zero, inA, inB, op);
   parameter N = 8;
   output [N-1:0] out;
@@ -18,7 +20,6 @@ module ALU (out, zero, inA, inB, op);
   input    [3:0] op;
 
   reg    [N-1:0] result;
- // PLACE YOUR VERILOG CODE HERE
   always @(*) begin
     case (op)
       4'b0000: // bitwise and
@@ -50,8 +51,10 @@ endmodule
 //                            address raB, data rdB
 //                Write port: address wa, data wd, enable wen.
 
+ //PLACE YOUR VERILOG CODE HERE
+ //Remember that the register file should be written at the negative edge of the input clock 
 
-module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
+module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
   input clk;
   input reset;
@@ -59,7 +62,7 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
   input [4:0] wa;
   input wen;
   input [31:0] wd;
-  output [31:0] rdA, rdB;
+  output reg [31:0] rdA, rdB;
   reg [31:0] mem [0: 31];  // array of 32 32-bit registers
   integer i;
 
@@ -81,9 +84,5 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
     end
 
   end
-
-
- //PLACE YOUR VERILOG CODE HERE
- //Remember that the register file should be written at the negative edge of the input clock 
 
 endmodule
