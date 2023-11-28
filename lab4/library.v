@@ -12,8 +12,7 @@
 
  // PLACE YOUR VERILOG CODE HERE
 
-module ALU (out, zero, inA, inB, op);
-  parameter N = 8;
+module ALU   #(parameter N = 8)(out, zero, inA, inB, op);
   output [N-1:0] out;
   output zero;
   input  [N-1:0] inA, inB;
