@@ -67,7 +67,7 @@ module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
   integer i;
 
 
-  always @(negedge clk, reset) begin
+  always @(negedge clk or negedge reset) begin
     if (!reset) begin     // RESET mem to 0
         for (i = 0; i < 32; i = i + 1) begin
           mem[i] <= 0;
@@ -80,7 +80,6 @@ module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
       if (wen) begin
         mem[wa] <= wd;
       end
-      
     end
 
   end
