@@ -6,16 +6,20 @@
 
 `include "library.v"
 
+
 `timescale 1ns/1ps
 `define clock_period 5
+// Custom Macro for showcasing the array of registers
 `define DISPLAY_ARRAY(arr, j_start, j_end) \
 for (integer j = j_start; j < j_end; j = j + 1) begin \
     $display("array[%0d] = %h", j, arr[j]); \
 end
 
+
+
 module cpu_tb;
 
-reg       clock, reset;    // Clock and reset signals
+reg       clock, reset;    
 reg   [4:0] raA, raB, wa;
 reg         wen;
 wire  [31:0] wd;
@@ -33,9 +37,9 @@ RegFile regs(clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
 ALU #(32) alu(wd, zero, rdA, rdB, op);
 
 
-
 initial begin  // Ta statements apo ayto to begin mexri to "end" einai seiriaka
-   $dumpfile("alu_wave.vcd");
+
+   $dumpfile("alu_wave.vcd");       // Waveform Setup
    $dumpvars(0,cpu_tb);
 
   // Initialize the module 
@@ -50,28 +54,23 @@ initial begin  // Ta statements apo ayto to begin mexri to "end" einai seiriaka
 
       
   // Now apply some inputs. 
-  // You SHOULD EXTEND this part of the code with extra inputs
    raA = 32'h1; raB = 32'h13; 
    #(2*`clock_period) raA = 32'hA1; raB = 32'h2; 
    #(2*`clock_period) op = 4'd2;
    #(2*`clock_period) wa = 32'h1; wen = 1'b1;
    #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
    #(2*`clock_period) op = 4'd7;
-   #(2`clock_period) reset = 1'b0;
-   wen = 1'b0;
+   #(2`clock_period) reset = 1'b0; wen = 1'b0;
    #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
 
-   // #(3*'clock_period)
 
    #(10 *`clock_period) $finish;
 
 end 
 
-// initial $monitor("time(%0.2t): R: %h clk: %h rdA = %h, wd = %h, wd_helper: %h",
-// $time, reset, clock, rdA, wd, wd);
-
-
+// initial $monitor("time(%0.2t): R: %h clk: %h rdA = %h, wd = %h",
+// $time, reset, clock, rdA, wd);
 
 // Generate clock by inverting the signal every half of clock period
 always 
