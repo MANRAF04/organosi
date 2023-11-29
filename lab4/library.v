@@ -1,7 +1,6 @@
 `timescale 1ns/1ps
 
 
-
 // ALU Module. Inputs: inA, inB. Output: out. 
 // Operations: bitwise and (op = 0)
 //             bitwise or  (op = 1)
@@ -10,15 +9,16 @@
 //             slt  (op = 7)
 //             nor (op = 12)
 
- // PLACE YOUR VERILOG CODE HERE
 
 module ALU   #(parameter N = 8)(out, zero, inA, inB, op);
+
   output [N-1:0] out;
   output zero;
   input  [N-1:0] inA, inB;
   input    [3:0] op;
-
   reg    [N-1:0] result;
+
+
   always @(*) begin
     case (op)
       4'b0000: // bitwise and
@@ -41,6 +41,7 @@ module ALU   #(parameter N = 8)(out, zero, inA, inB, op);
   // Zero flag
   assign zero = (result == 0) ? 1 : 0;
 
+  // Get the result as an output
   assign out = result;
 endmodule
 
@@ -50,8 +51,6 @@ endmodule
 //                            address raB, data rdB
 //                Write port: address wa, data wd, enable wen.
 
- //PLACE YOUR VERILOG CODE HERE
- //Remember that the register file should be written at the negative edge of the input clock 
 
 module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
@@ -75,11 +74,12 @@ module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
     else begin
       if (wen) begin
-        mem[wa] <= wd;
+        mem[wa] <= wd;    // Write the data to the needed mem[wa] register
       end
     end
   end
 
+  // Assign the 2 reading outputs from the array
   assign rdA = mem[raA];
   assign rdB = mem[raB];
 
