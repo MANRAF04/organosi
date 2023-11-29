@@ -61,7 +61,7 @@ module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
   input [4:0] wa;
   input wen;
   input [31:0] wd;
-  output reg [31:0] rdA, rdB;
+  output  [31:0] rdA, rdB;
   reg [31:0] mem [0: 31];  // array of 32 32-bit registers
   integer i;
 
@@ -74,13 +74,13 @@ module RegFile (clk, reset, raA, raB, wa, wen, wd, rdA, rdB);
       end
 
     else begin
-      rdA <= mem[raA];
-      rdB <= mem[raB];
       if (wen) begin
         mem[wa] <= wd;
       end
     end
-
   end
+
+  assign rdA = mem[raA];
+  assign rdB = mem[raB];
 
 endmodule
