@@ -11,8 +11,9 @@
 `define clock_period 5
 // Custom Macro for showcasing the array of registers
 `define DISPLAY_ARRAY(arr, j_start, j_end) \
+$display("###########################"); \
 for (integer j = j_start; j < j_end; j = j + 1) begin \
-    $display("array[%0d] = %h", j, arr[j]); \
+    $display("array[%0d] = %d", j, arr[j]); \
 end
 
 
@@ -54,18 +55,58 @@ initial begin  // Ta statements apo ayto to begin mexri to "end" einai seiriaka
 
       
   // Now apply some inputs. 
-   raA = 32'h1; raB = 32'h13; 
-   #(2*`clock_period) raA = 32'hA1; raB = 32'h2; 
-   #(2*`clock_period) op = 4'd2;
-   #(2*`clock_period) wa = 32'h1; wen = 1'b1;
+   raA = 5'd1; raB = 5'd13; 
+   #(2*`clock_period) raA = 5'd11; raB = 5'd2; 
+   #(2*`clock_period) op = 5'd2; 
+   #(2*`clock_period) wa = 5'd1; wen = 1'b1;
+   
    #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+
    #(2*`clock_period) op = 4'd7;
-   #(2`clock_period) reset = 1'b0; wen = 1'b0;
+ 
+
+
+   #(2`clock_period) raA = 5'd7; raB = 5'd0;
+   #(2`clock_period) op = 4'd7;
+   #(2`clock_period) wa = 5'd0; wen = 1'b1;
+
    #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
+   #(2`clock_period) raA = 5'd7; raB = 5'd0;
+   #(2`clock_period) op = 4'd0;
+   #(2`clock_period) wa = 5'd5; wen = 1'b1;
 
+   #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+   #(2`clock_period) raA = 5'd8; raB = 5'd16;
+   #(2`clock_period) op = 4'd1;
+   #(2`clock_period) wa = 5'd31; wen = 1'b1;
 
-   #(10 *`clock_period) $finish;
+   #(2`clock_period) raA = 5'd7; raB = 5'd0;
+    op = 4'd7;wa = 5'd3; wen = 1'b1; // for test
+
+   #(2`clock_period) raA = 5'd7; raB = 5'd0;
+   #(2`clock_period) op = 4'd5;
+   #(2`clock_period) wa = 5'd16; wen = 1'b1;
+
+   #(2`clock_period) raA = 5'd7; raB = 5'd0;
+   #(2`clock_period) op = 4'd7;
+   #(2`clock_period) wa = 5'd0; wen = 1'b1;
+
+   #(2`clock_period) raA = 5'd23; raB = 5'd17;
+   #(2`clock_period) op = 4'd12;
+   #(2`clock_period) wa = 5'd4; wen = 1'b1;
+
+   #(2`clock_period) raA = 5'd23; raB = 5'd17;
+   #(2`clock_period) op = 4'd13;
+   #(2`clock_period) wa = 5'd9; wen = 1'b1;
+
+   #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+
+   #(2`clock_period) reset = 1'b0; wen = 1'b1;
+
+//    #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+
+   #(20 *`clock_period) $finish;
 
 end 
 
@@ -76,4 +117,4 @@ end
 always 
    #(`clock_period / 2) clock = ~clock;  
    
-endmodule
+endmodule 
