@@ -13,7 +13,7 @@
 `define DISPLAY_ARRAY(arr, j_start, j_end) \
 $display("###########################"); \
 for (integer j = j_start; j < j_end; j = j + 1) begin \
-    $display("array[%0d] = %d", j, arr[j]); \
+    $display("array[%02d] = %d", j, arr[j]); \
 end
 
 
@@ -55,56 +55,50 @@ initial begin  // Ta statements apo ayto to begin mexri to "end" einai seiriaka
 
       
   // Now apply some inputs. 
-   raA = 5'd1; raB = 5'd13; 
-   #(2*`clock_period) raA = 5'd11; raB = 5'd2; 
-   #(2*`clock_period) op = 5'd2; 
-   #(2*`clock_period) wa = 5'd1; wen = 1'b1;
+   #(2*`clock_period) //Addition
+   raA = 5'd11; raB = 5'd2; op = 5'd2; wa = 5'd1; wen = 1'b1;
    
-   #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+   #(`clock_period)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
-   #(2*`clock_period) op = 4'd7;
- 
+   #(2`clock_period) //Less than
+   raA = 5'd7; raB = 5'd0; op = 4'd7; wa = 5'd2; wen = 1'b1;
 
+   #(`clock_period)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
-   #(2`clock_period) raA = 5'd7; raB = 5'd0;
-   #(2`clock_period) op = 4'd7;
-   #(2`clock_period) wa = 5'd0; wen = 1'b1;
+   #(2`clock_period) //Bitwise AND
+   raA = 5'd7; raB = 5'd0; op = 4'd0; wa = 5'd5; wen = 1'b1;
 
-   #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+   #(`clock_period)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
-   #(2`clock_period) raA = 5'd7; raB = 5'd0;
-   #(2`clock_period) op = 4'd0;
-   #(2`clock_period) wa = 5'd5; wen = 1'b1;
+   #(2`clock_period) //Bitwise OR
+   raA = 5'd8; raB = 5'd16; op = 4'd1; wa = 5'd31; wen = 1'b1;
 
-   #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
-   #(2`clock_period) raA = 5'd8; raB = 5'd16;
-   #(2`clock_period) op = 4'd1;
-   #(2`clock_period) wa = 5'd31; wen = 1'b1;
+   #(2`clock_period) //Less than
+   raA = 5'd0; raB = 5'd7; op = 4'd7;wa = 5'd3; wen = 1'b1; // for test
 
-   #(2`clock_period) raA = 5'd7; raB = 5'd0;
-    op = 4'd7;wa = 5'd3; wen = 1'b1; // for test
+   #(2`clock_period) //Non implemented operation
+   raA = 5'd7; raB = 5'd0; op = 4'd5; wa = 5'd16; wen = 1'b1;
 
-   #(2`clock_period) raA = 5'd7; raB = 5'd0;
-   #(2`clock_period) op = 4'd5;
-   #(2`clock_period) wa = 5'd16; wen = 1'b1;
+   #(2`clock_period) //Less than
+   raA = 5'd7; raB = 5'd0; op = 4'd7; wa = 5'd0; wen = 1'b1;
 
-   #(2`clock_period) raA = 5'd7; raB = 5'd0;
-   #(2`clock_period) op = 4'd7;
-   #(2`clock_period) wa = 5'd0; wen = 1'b1;
+   #(2`clock_period) //Bitwise NOR
+   raA = 5'd23; raB = 5'd17; op = 4'd12; wa = 5'd4; wen = 1'b1;
 
-   #(2`clock_period) raA = 5'd23; raB = 5'd17;
-   #(2`clock_period) op = 4'd12;
-   #(2`clock_period) wa = 5'd4; wen = 1'b1;
+   #(2`clock_period) //Non implemented operation
+   raA = 5'd23; raB = 5'd17; op = 4'd13; wa = 5'd9; wen = 1'b1;
 
-   #(2`clock_period) raA = 5'd23; raB = 5'd17;
-   #(2`clock_period) op = 4'd13;
-   #(2`clock_period) wa = 5'd9; wen = 1'b1;
+   #(2`clock_period) //Addition with x
+   raA = 5'd9; raB = 5'd17; op = 4'd2; wa = 5'd25; wen = 1'b1;
 
-   #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+   #(2`clock_period) //Addition with overflow
+   raA = 5'd4; raB = 5'd4; op = 4'd2; wa = 5'd28; wen = 1'b1;
+
+   #(`clock_period)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
    #(2`clock_period) reset = 1'b0; wen = 1'b1;
 
-//    #(`clock_period/1.99)`DISPLAY_ARRAY(regs.mem, 0, 32);
+   #(`clock_period)`DISPLAY_ARRAY(regs.mem, 0, 32);
 
    #(20 *`clock_period) $finish;
 
