@@ -1,6 +1,4 @@
 // This file contains library modules to be used in your design. 
-
-`include "constants.h"
 `timescale 1ns/1ps
 
 // Small ALU. 
@@ -13,7 +11,7 @@
 //             slt  (op = 7)
 //             nor (op = 12)
 
-module ALU   #(parameter N = 8)(out, zero, inA, inB, op);
+module ALU  #(parameter N = 8)(out, zero, inA, inB, op);
 
   output [N-1:0] out;
   output zero;
@@ -105,6 +103,7 @@ module Memory (clock, reset, ren, wen, addr, din, dout);
     if (ren & wen)
       $display ("\nMemory ERROR (time %0d): ren and wen both active!\n", $time);
 
+
   always @(posedge ren or posedge wen) begin // It does not correspond to hardware. Just for error detection
     if (addr[31:10] != 0)
       $display("Memory WARNING (time %0d): address msbs are not zero\n", $time);
@@ -112,9 +111,9 @@ module Memory (clock, reset, ren, wen, addr, din, dout);
 
   assign dout = ((wen==1'b0) && (ren==1'b1)) ? data[addr[9:0]] : 32'bx;
     
-  always @(din or wen or ren or addr)
+  always @(negedge clock)
    begin
-    if ((wen == 1'b1) && (ren==1'b0))
+    if ((wen == 1'b1) && (ren==1'b0) && reset)
         data[addr[9:0]] = din;
    end
 
