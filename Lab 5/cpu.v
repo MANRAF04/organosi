@@ -4,7 +4,7 @@
 
 module CPU(clock,reset);
 
-    reg [31:0] PC = 32'b0;
+    reg [31:0] PC = 32'h0;
     reg inst_wen = 0, inst_ren = 1;
     input clock, reset;
     wire [31:0] din, dout, mdout; 
@@ -16,35 +16,40 @@ module CPU(clock,reset);
     reg [31:0] signXt, inB, wd;
     wire zero;
 
-    always @(negedge clock) begin
+    always @(negedge clock, negedge reset) begin
         PC = PC + 4;
+        if(!reset)
+            PC = 0;
     end
 
-    always @(dout) begin   // MUX for wreg
+    always @(*) begin
+        
+    // always @(dout) begin   // MUX for wreg
         wreg = (rDst) ? dout[15:11] : dout[20:16];
         signXt = dout[15:0] << 1;
-    end
+    // end
 
-    always @(rdB, signXt) begin // MUX for inB
+    // always @(rdB, signXt) begin // MUX for inB
         inB = (aluSrc) ? (signXt) : (rdB);
-    end
+    // end
 
-    always @(aluOut, mdout) begin // MUX for write data
+    // always @(aluOut, mdout) begin // MUX for write data
         wd = (memToReg) ? (aluOut) : (mdout);
-    end
+    // end
     
-    always @(PC,signXt) begin
+    // always @(PC,signXt) begin
         if ((zero^dout[26]) & branch) begin //Alliws zero^bequal 8a to doyme
             PC = PC + signXt<<2;
         end
     end
+    // end
 
-    Memory InstMemory(.clock(clock),.reset(reset),.ren(inst_ren),.wen(inst_wen),.addr({2'b0, PC[31:2]}),.din(din),.dout(dout));
+    Memory cpu_IMem(.clock(clock),.reset(reset),.ren(inst_ren),.wen(inst_wen),.addr({2'b0, PC[31:2]}),.din(din),.dout(dout));
     RegFile cpu_regs(.clock(clock), .reset(reset), .raA(dout[25:21]), .raB(dout[20:16]), .wa(wreg), .wen(rWrite), .wd(wd), .rdA(rdA), .rdB(rdB));
     ControlUnit cUnit(.opcode(dout[31:26]),.func(dout[5:0]),.aluOp(aluOp), .rWrite(rWrite), .rDst(rDst), .aluSrc(aluSrc),
                       .branch(branch), .bequal(bequal), .memWrite(memWrite), .memToReg(memToReg), .memRead(memRead));
     ALU #(32) alu(.out(aluOut),.zero(zero), .inA(rdA), .inB(inB), .op(aluOp));
-    Memory DataMemory(.clock(clock), .reset(reset), .ren(memRead), .wen(memWrite),.addr(aluOut),.din(rdB),.dout(mdout));
+    Memory cpu_DMem(.clock(clock), .reset(reset), .ren(memRead), .wen(memWrite),.addr(aluOut),.din(rdB),.dout(mdout));
     
 
 

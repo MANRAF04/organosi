@@ -31,6 +31,19 @@ always @(*) begin
         (`R_FORMAT): begin 
             rWrite = 1; 
             rDst = 1; 
+            case (func)
+                (`ADD):
+                    aluOp = 4'b0010;
+                (`SUB):
+                    aluOp = 4'b0110;
+                (`OR):
+                    aluOp = 4'b0001;
+                (`AND):
+                    aluOp = 4'b0000;
+                (`SLT):
+                    aluOp = 4'b0111;
+                default: aluOp = 4'bx; 
+            endcase
         end
         (`LW): begin
             rWrite = 1; 
@@ -64,27 +77,10 @@ always @(*) begin
             rWrite = 1; 
             aluSrc = 1; 
             aluOp = 4'b0010;
-            end 
+        end 
         default:
             aluOp = 4'bx;
     endcase
 end
-
-always @(*) begin
-    case (func)
-        (`ADD):
-            aluOp = 4'b0010;
-        (`SUB):
-            aluOp = 4'b0110;
-        (`OR):
-            aluOp = 4'b0001;
-        (`AND):
-            aluOp = 4'b0000;
-        (`SLT):
-            aluOp = 4'b0111;
-        default: aluOp = 4'bx; 
-    endcase
-end
-
 
 endmodule

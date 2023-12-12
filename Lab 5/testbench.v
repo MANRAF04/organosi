@@ -4,18 +4,24 @@
 // It only needs to instantiate CPU, Drive the inputs to CPU (clock, reset)
 // and monitor the outputs. This is what all testbenches do
 
-`include "constants.h"    // Header file with opcodes
+`include "constants.vh"    // Header file with opcodes
+`include "cpu.v"
 `timescale 1ns/1ps
 
 module cpu_tb;
+
 integer   i;
 reg      clock, reset;    // Clock and reset signals
-reg [31:0] pc;
+
 // Instantiate CPU here with name cpu0
 CPU cpu0(clock, reset);
 
 // Initialization and signal generation
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+always begin
+    #(`clock_period / 2) clock = ~clock;
+end
+
 
 // Generate clock and reset signal here
 
@@ -23,15 +29,26 @@ CPU cpu0(clock, reset);
   // cpu0 is the name of the cpu instance
   // cpu_regs is the name of the register file instance in the CPU verilog file 
   // data[] is the register file array 
-initial 
-    begin  
-      pc = 32'b0;  
-      for (i = 0; i < 32; i = i+1)
-         cpu0.cpu_regs.data[i] = i;   // Note that R0 = 0 in MIPS 
+initial begin
+
+  $dumpfile("cpu_tb.vcd");       // Waveform Setup
+  $dumpvars(0,cpu_tb);
+
+  for (i = 0; i < 32; i++)
+    $dumpvars(2, cpu0.cpu_IMem.data[i]);
+  for (i = 0; i < 32; i++)
+    $dumpvars(2, cpu0.cpu_regs.data[i]);
+  for (i = 0; i < 32; i++)
+    $dumpvars(2, cpu0.cpu_DMem.data[i]);
+
+    for (i = 0; i < 32; i = i+1)
+      cpu0.cpu_regs.data[i] = i;   // Note that R0 = 0 in MIPS 
+
+  clock = 1'b0;
 
   // Initialize Instruction Memory. You have to develop "program.hex" as a text file 
   // which containsthe instruction opcodes as 32-bit hexadecimal values.
-  $readmemh("program.hex", cpu0.cpu_IMem.data);
+  $readmemh("program.hex", cpu0.cpu_IMem.data, 32, 0);
 
   // Edw, to "program.hex" einai ena arxeio pou prepei na brisketai sto 
   // directory pou trexete th Verilog kai na einai ths morfhs:
@@ -69,9 +86,12 @@ initial
 
   // (h Verilog epitrepei diaxwristika underscores).
 
+  reset = 1'b0;
+  #(`clock_period/4) reset = 1'b1;
 
   // Termatismos ekteleshs:
-  // $finish;
+  #(15 * `clock_period)  reset = 1'b0;
+  #(6 * `clock_period)  $finish;
 
 end  // initial 
 
