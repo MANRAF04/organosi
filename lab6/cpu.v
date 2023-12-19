@@ -24,13 +24,13 @@ module cpu(input clock, input reset);
  reg [31:0] MEMWB_ALUOut;
  reg        MEMWB_MemToReg, MEMWB_RegWrite;               
  reg        Iren = 1'b1,Iwen = 1'b0;
- wire [31:0] din,dout,mdout;
- wire [31:0] instr, ALUInA, ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr;
- wire Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Branch;
+ wire [31:0] din,mdout;
+ wire [31:0] instr, MemWriteData, ALUInA, ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr;
+ wire Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Branch, PC_write, IFID_write, hazard_signal;
  wire [5:0] opcode, func;
  wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr;
  wire [3:0] ALUOp;
- wire [1:0] ALUcntrl;
+ wire [1:0] ALUcntrl, fA, fB;
  wire [15:0] imm;
 
  
@@ -43,7 +43,7 @@ module cpu(input clock, input reset);
        PC <= -1;     
     else if (PC == -1)
        PC <= 0;
-    else 
+    else
        PC <= PC + 4;
   end
   
@@ -64,7 +64,7 @@ module cpu(input clock, input reset);
   
 // TO FILL IN: Instantiate the Instruction Memory here 
   
-Memory cpu_IMem(clock,reset,Iren,Iwen,{2'b0, PC[31:2]},din,dout);  
+Memory cpu_IMem(clock,reset,Iren,Iwen,{2'b0, PC[31:2]},din,instr);  
   
 
 /***************** Instruction Decode Unit (ID)  ****************/
@@ -130,15 +130,24 @@ control_main control_main (RegDst,
                   opcode);
                   
 // TO FILL IN: Instantiation of Control Unit that generates stalls
-
+hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
 
 
                            
 /***************** Execution Unit (EX)  ****************/
                  
-assign ALUInA = IDEX_rdA;
-                 
-assign ALUInB = (IDEX_ALUSrc == 1'b0) ? IDEX_rdB : IDEX_signExtend;
+// assign ALUInA = IDEX_rdA;
+assign ALUInA = (fA[0]) ? (wRegData) : 
+                (fA[1]) ? (EXMEM_ALUOut) : (IDEX_rdA);
+
+assign MemWriteData = (fB[0]) ? (wRegData) : 
+                      (fB[1]) ? (EXMEM_ALUOut) : IDEX_rdB;
+
+
+
+
+// assign ALUInB = (IDEX_ALUSrc == 1'b0) ? IDEX_rdB : IDEX_signExtend;
+assign ALUInB = (IDEX_ALUSrc)  ? (IDEX_signExtend) : (MemWriteData); 
 
 //  ALU
 ALU  #(32) cpu_alu(ALUOut, Zero, ALUInA, ALUInB, ALUOp);
@@ -153,6 +162,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
        EXMEM_ALUOut <= 32'b0;    
        EXMEM_RegWriteAddr <= 5'b0;
        EXMEM_MemWriteData <= 32'b0;
+       EXMEM_instr_rd <= 5'b0;
        EXMEM_Zero <= 1'b0;
        EXMEM_Branch <= 1'b0;
        EXMEM_MemRead <= 1'b0;
@@ -164,7 +174,8 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
       begin
        EXMEM_ALUOut <= ALUOut;    
        EXMEM_RegWriteAddr <= RegWriteAddr;
-       EXMEM_MemWriteData <= IDEX_rdB;
+       EXMEM_MemWriteData <= IDEX_rdB; // edit from source
+       EXMEM_instr_rd <= RegWriteAddr;
        EXMEM_Zero <= Zero;
        EXMEM_Branch <= IDEX_Branch;
        EXMEM_MemRead <= IDEX_MemRead;
@@ -178,7 +189,8 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
   control_alu control_alu(ALUOp, IDEX_ALUcntrl, IDEX_signExtend[5:0]);
   
    // TO FILL IN: Instantiation of control logic for Forwarding goes here
-  
+  forwarding_unit cpu_fu(fA, fB, EXMEM_RegWrite, EXMEM_instr_rd, MEMWB_RegWrite,
+                         MEMWB_instr_rd, IDEX_instr_rt, IDEX_instr_rs);
 
   
   
@@ -187,7 +199,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
 
 // Data memory 1KB
 // Instantiate the Data Memory here 
-
+Memory cpu_DMem(clock, reset, EXMEM_MemRead, EXMEM_MemWrite, EXMEM_ALUOut, EXMEM_MemWriteData, DMemOut);
 
 
 // MEMWB pipeline register
@@ -217,6 +229,8 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
 
 /***************** WriteBack Unit (WB)  ****************/  
 // TO FILL IN: Write Back logic 
+assign wRegData = (MEMWB_MemToReg) ? (MEMWB_DMemOut) : (MEMWB_ALUOut);
+
 
 
 endmodule
