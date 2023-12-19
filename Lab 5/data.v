@@ -66,11 +66,11 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
 
 
   always @(negedge clock or negedge reset) begin
-    // if (!reset) begin     // RESET data to 0
-    //     for (i = 0; i < 32; i = i + 1) begin
-    //       data[i] <= 0;
-    //     end
-    //   end
+    if (!reset) begin     // RESET data to 0
+        for (i = 0; i < 32; i = i + 1) begin
+          data[i] <= 0;
+        end
+      end
 
     // else begin
       if (wen) begin

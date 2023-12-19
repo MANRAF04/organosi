@@ -1,5 +1,5 @@
 //  Timing constants
-`define clock_period    20
+`define clock_period  20
 
 // Opcodes 
 `define R_FORMAT  6'b0 

@@ -41,14 +41,12 @@ initial begin
   for (i = 0; i < 32; i++)
     $dumpvars(2, cpu0.cpu_DMem.data[i]);
 
-    for (i = 0; i < 32; i = i+1)
-      cpu0.cpu_regs.data[i] = i;   // Note that R0 = 0 in MIPS 
 
   clock = 1'b0;
 
   // Initialize Instruction Memory. You have to develop "program.hex" as a text file 
   // which containsthe instruction opcodes as 32-bit hexadecimal values.
-  $readmemh("program.hex", cpu0.cpu_IMem.data, 32, 0);
+  
 
   // Edw, to "program.hex" einai ena arxeio pou prepei na brisketai sto 
   // directory pou trexete th Verilog kai na einai ths morfhs:
@@ -86,11 +84,15 @@ initial begin
 
   // (h Verilog epitrepei diaxwristika underscores).
 
+  $readmemh("program.hex", cpu0.cpu_IMem.data, 31, 0);
   reset = 1'b0;
-  #(`clock_period/4) reset = 1'b1;
+  #(0.75*`clock_period) reset = 1'b1;
+  for (i = 0; i < 32; i = i+1)
+    cpu0.cpu_regs.data[i] = i;   // Note that R0 = 0 in MIPS 
+  
 
   // Termatismos ekteleshs:
-  #(15 * `clock_period)  reset = 1'b0;
+  #(20 * `clock_period)  reset = 1'b0;
   #(6 * `clock_period)  $finish;
 
 end  // initial 

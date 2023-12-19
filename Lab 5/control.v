@@ -10,7 +10,6 @@ module ControlUnit(
            output reg rDst,
            output reg aluSrc,
            output reg branch,
-           output reg bequal,
            output reg memWrite,
            output reg memRead,
            output reg memToReg
@@ -24,7 +23,6 @@ always @(*) begin
     branch = 0; 
     memWrite = 0; 
     memToReg = 0;
-    bequal = 0; 
     memRead = 0;
 
     case (opcode)
@@ -49,6 +47,7 @@ always @(*) begin
             rWrite = 1; 
             aluSrc = 1; 
             memToReg = 1; 
+            memRead = 1;
             aluOp = 4'b0010;
         end
         (`SW): begin
@@ -71,7 +70,6 @@ always @(*) begin
             branch = 1'b1;
             memToReg = 1'bx; 
             aluOp = 4'b0110;
-            bequal = 1;
         end
         (`ADDI): begin
             rWrite = 1; 
