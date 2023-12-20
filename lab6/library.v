@@ -87,4 +87,3 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
    end
 
 endmodule
-

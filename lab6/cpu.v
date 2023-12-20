@@ -139,7 +139,7 @@ control_main control_main (RegDst,
                   opcode);
                   
 // TO FILL IN: Instantiation of Control Unit that generates stalls
-hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
+hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt, EXMEM_MemRead, EXMEM_RegWriteAddr);
 
 
                            
