@@ -43,7 +43,7 @@ module cpu(input clock, input reset);
        PC <= -1;     
     else if (PC == -1)
        PC <= 0;
-    else
+    else if (PC_write == 1'b1)
        PC <= PC + 4;
   end
   
@@ -55,7 +55,7 @@ module cpu(input clock, input reset);
        IFID_PCplus4 <= 32'b0;    
        IFID_instr <= 32'b0;
     end 
-    else 
+    else if (IFID_write == 1'b1) 
       begin
        IFID_PCplus4 <= PC + 32'd4;
        IFID_instr <= instr;
@@ -63,7 +63,6 @@ module cpu(input clock, input reset);
   end
   
 // TO FILL IN: Instantiate the Instruction Memory here 
-  
 Memory cpu_IMem(clock,reset,Iren,Iwen,{2'b0, PC[31:2]},din,instr);  
   
 
@@ -82,7 +81,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
   // IDEX pipeline register
  always @(posedge clock or negedge reset)
   begin 
-    if (reset == 1'b0)
+    if (reset == 1'b0 | hazard_signal == 1'b0)
       begin
        IDEX_rdA <= 32'b0;    
        IDEX_rdB <= 32'b0;
@@ -141,7 +140,7 @@ assign ALUInA = (fA[0]) ? (wRegData) :
                 (fA[1]) ? (EXMEM_ALUOut) : (IDEX_rdA);
 
 assign MemWriteData = (fB[0]) ? (wRegData) : 
-                      (fB[1]) ? (EXMEM_ALUOut) : IDEX_rdB;
+                      (fB[1]) ? (EXMEM_ALUOut) : (IDEX_rdB);
 
 
 
@@ -174,7 +173,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
       begin
        EXMEM_ALUOut <= ALUOut;    
        EXMEM_RegWriteAddr <= RegWriteAddr;
-       EXMEM_MemWriteData <= IDEX_rdB; // edit from source
+       EXMEM_MemWriteData <= MemWriteData; // edit from source
        EXMEM_instr_rd <= RegWriteAddr;
        EXMEM_Zero <= Zero;
        EXMEM_Branch <= IDEX_Branch;

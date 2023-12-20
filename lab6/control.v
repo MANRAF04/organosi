@@ -67,27 +67,24 @@ endmodule
 module forwarding_unit (
   output reg [1:0] fA,
   output reg [1:0] fB,
-  input EXMEM_RegWrite,
-  input [4:0] EXMEM_instr_rd,
-  input MEMWB_RegWrite,
-  input [4:0] MEMWB_instr_rd,
-  input [4:0] IDEX_instr_rt,
-  input [4:0] IDEX_instr_rs
+  input EXMEM_RegWrite,       //check
+  input [4:0] EXMEM_instr_rd, //check
+  input MEMWB_RegWrite,       //check
+  input [4:0] MEMWB_instr_rd, // check
+  input [4:0] IDEX_instr_rt,  // check
+  input [4:0] IDEX_instr_rs   // check
 );
 
 always @(*) begin
     fA = 2'b00;
     fB = 2'b00;
-// always @(EXMEM_RegWrite, EXMEM_instr_rd, IDEX_instr_rs) begin
     if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && EXMEM_instr_rd == IDEX_instr_rs) begin
         fA = 2'b10;
     end
     if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && EXMEM_instr_rd == IDEX_instr_rt) begin
         fB = 2'b10;
     end
-// end
 
-// always @(MEMWB_RegWrite, MEMWB_instr_rd, IDEX_instr_rs) begin
     if (MEMWB_RegWrite == 1 && MEMWB_instr_rd != 0 && MEMWB_instr_rd == IDEX_instr_rs && (EXMEM_instr_rd != IDEX_instr_rs || EXMEM_RegWrite == 0)) begin
         fA = 2'b01;
     end
