@@ -81,7 +81,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
   // IDEX pipeline register
  always @(posedge clock or negedge reset)
   begin 
-    if (reset == 1'b0 | hazard_signal == 1'b0)
+    if (reset == 1'b0)
       begin
        IDEX_rdA <= 32'b0;    
        IDEX_rdB <= 32'b0;
@@ -97,6 +97,16 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_MemWrite <= 1'b0;
        IDEX_MemToReg <= 1'b0;                  
        IDEX_RegWrite <= 1'b0;
+    end
+    else if (hazard_signal == 1'b0) begin
+      IDEX_RegDst <= 32'b0;
+      IDEX_ALUcntrl <= 32'b0;
+      IDEX_ALUSrc <= 32'b0;
+      IDEX_Branch <= 32'b0;
+      IDEX_MemRead <= 32'b0;
+      IDEX_MemWrite <= 32'b0;
+      IDEX_MemToReg <= 32'b0;
+      IDEX_RegWrite <= 32'b0;
     end 
     else 
       begin
@@ -106,14 +116,14 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_instr_rd <= instr_rd;
        IDEX_instr_rs <= instr_rs;
        IDEX_instr_rt <= instr_rt;
-       IDEX_RegDst <= RegDst;
-       IDEX_ALUcntrl <= ALUcntrl;
-       IDEX_ALUSrc <= ALUSrc;
-       IDEX_Branch <= Branch;
-       IDEX_MemRead <= MemRead;
-       IDEX_MemWrite <= MemWrite;
-       IDEX_MemToReg <= MemToReg;                  
-       IDEX_RegWrite <= RegWrite;
+       IDEX_RegDst <= RegDst;         //EX
+       IDEX_ALUcntrl <= ALUcntrl;     //EX
+       IDEX_ALUSrc <= ALUSrc;         //EX
+       IDEX_Branch <= Branch;         //MEM (PCSrc)
+       IDEX_MemRead <= MemRead;       //MEM
+       IDEX_MemWrite <= MemWrite;     //MEM
+       IDEX_MemToReg <= MemToReg;     //WB             
+       IDEX_RegWrite <= RegWrite;     //WB
     end
   end
 
@@ -176,11 +186,11 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
        EXMEM_MemWriteData <= MemWriteData; // edit from source
        EXMEM_instr_rd <= RegWriteAddr;
        EXMEM_Zero <= Zero;
-       EXMEM_Branch <= IDEX_Branch;
-       EXMEM_MemRead <= IDEX_MemRead;
-       EXMEM_MemWrite <= IDEX_MemWrite;
-       EXMEM_MemToReg <= IDEX_MemToReg;                  
-       EXMEM_RegWrite <= IDEX_RegWrite;
+       EXMEM_Branch <= IDEX_Branch;     //MEM
+       EXMEM_MemRead <= IDEX_MemRead;   //MEM
+       EXMEM_MemWrite <= IDEX_MemWrite; //MEM
+       EXMEM_MemToReg <= IDEX_MemToReg; //WB                 
+       EXMEM_RegWrite <= IDEX_RegWrite; //WB
       end
   end
   
@@ -217,8 +227,8 @@ Memory cpu_DMem(clock, reset, EXMEM_MemRead, EXMEM_MemWrite, EXMEM_ALUOut, EXMEM
        MEMWB_DMemOut <= DMemOut;
        MEMWB_ALUOut <= EXMEM_ALUOut;
        MEMWB_RegWriteAddr <= EXMEM_RegWriteAddr;
-       MEMWB_MemToReg <= EXMEM_MemToReg;                  
-       MEMWB_RegWrite <= EXMEM_RegWrite;
+       MEMWB_MemToReg <= EXMEM_MemToReg;    //WB              
+       MEMWB_RegWrite <= EXMEM_RegWrite;    //WB
       end
   end
 
