@@ -9,7 +9,7 @@ module cpu(input clock, input reset);
  reg [31:0] IFID_PCplus4;
  reg [31:0] IFID_instr;
  reg [31:0] IDEX_rdA, IDEX_rdB, IDEX_signExtend;
- reg [4:0]  IDEX_instr_rt, IDEX_instr_rs, IDEX_instr_rd;                            
+ reg [4:0]  IDEX_instr_rt, IDEX_instr_rs, IDEX_instr_rd, IDEX_instr_shamt;                            
  reg        IDEX_RegDst, IDEX_ALUSrc;
  reg [1:0]  IDEX_ALUcntrl;
  reg        IDEX_Branch, IDEX_MemRead, IDEX_MemWrite; 
@@ -25,10 +25,10 @@ module cpu(input clock, input reset);
  reg        MEMWB_MemToReg, MEMWB_RegWrite;               
  reg        Iren = 1'b1,Iwen = 1'b0;
  wire [31:0] din,mdout;
- wire [31:0] instr, MemWriteData, ALUInA, ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr;
+ wire [31:0] instr, MemWriteData, ALUInA, in_ALUInB ,ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr;
  wire Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Branch, PC_write, IFID_write, hazard_signal;
  wire [5:0] opcode, func;
- wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr;
+ wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr, instr_shamt;
  wire [3:0] ALUOp;
  wire [1:0] ALUcntrl, fA, fB;
  wire [15:0] imm;
@@ -73,6 +73,7 @@ assign instr_rs = IFID_instr[25:21];
 assign instr_rt = IFID_instr[20:16];
 assign instr_rd = IFID_instr[15:11];
 assign imm = IFID_instr[15:0];
+assign instr_shamt = IFID_instr[10:6];
 assign signExtend = {{16{imm[15]}}, imm};
 
 // Register file
@@ -89,6 +90,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_instr_rd <= 5'b0;
        IDEX_instr_rs <= 5'b0;
        IDEX_instr_rt <= 5'b0;
+       IDEX_instr_shamt <= 5'b0;
        IDEX_RegDst <= 1'b0;
        IDEX_ALUcntrl <= 2'b0;
        IDEX_ALUSrc <= 1'b0;
@@ -115,6 +117,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_signExtend <= signExtend;
        IDEX_instr_rd <= instr_rd;
        IDEX_instr_rs <= instr_rs;
+       IDEX_instr_shamt <= instr_shamt;
        IDEX_instr_rt <= instr_rt;
        IDEX_RegDst <= RegDst;         //EX
        IDEX_ALUcntrl <= ALUcntrl;     //EX
@@ -153,10 +156,10 @@ assign MemWriteData = (fB[0]) ? (wRegData) :
                       (fB[1]) ? (EXMEM_ALUOut) : (IDEX_rdB);
 
 
-
+assign ALUInB = (IDEX_instr_shamt) ? (IDEX_instr_shamt) : (in_ALUInB);
 
 // assign ALUInB = (IDEX_ALUSrc == 1'b0) ? IDEX_rdB : IDEX_signExtend;
-assign ALUInB = (IDEX_ALUSrc)  ? (IDEX_signExtend) : (MemWriteData); 
+assign in_ALUInB = (IDEX_ALUSrc)  ? (IDEX_signExtend) : (MemWriteData); 
 
 //  ALU
 ALU  #(32) cpu_alu(ALUOut, Zero, ALUInA, ALUInB, ALUOp);
