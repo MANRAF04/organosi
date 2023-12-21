@@ -1,16 +1,19 @@
 add $t0, $t0, $s0  : PASS
 sw $ra, 4($t2)     : PASS
+sw $ra, 4($t2)     : PASS
 lw $t5, 4($t2)     : PASS
 sub $t1, $t1, $a0  : PASS
-or $t6, $t7, $t5   : FAIL
+or $t6, $t7, $t5   : PASS
 and $s3, $s0, $s2  : PASS
 lw $t6, 4($t2)     : PASS
 STALL @AND
+STALL @AND
 sw $gp, 8($t2)     : PASS
 lw $v0, 8($t2)     : PASS
-and $a0, $v0, $t5  : FAIL
-or $a0, $a0, $t0   : FAIL
-add $t1, $a0, $v0  : FAIL
+and $a0, $v0, $t5  : PASS
+or $a0, $a0, $t0   : PASS
+add $t1, $a0, $v0  : PASS
+STALL @SLL
 STALL @SLL
 slt $sp, $a0, $t1  : PASS
 lw $v0, 8($t2)     : PASS

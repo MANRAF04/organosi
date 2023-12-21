@@ -52,6 +52,12 @@ module control_main(output reg RegDst,
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
            end
+        `ADDI:
+            begin
+              RegWrite = 1'b1;
+              ALUSrc = 1'b1;
+              ALUcntrl = 2'b00;
+            end
        default:
            begin
             // .............
@@ -152,6 +158,9 @@ module control_alu(output reg [3:0] ALUOp,
               6'b100101: ALUOp = 4'b0001; // or
               6'b100111: ALUOp = 4'b1100; // nor
               6'b101010: ALUOp = 4'b0111; // slt
+              6'b000000: ALUOp = 4'b1000; // sll
+              6'b000100: ALUOp = 4'b1000; // sllv
+
               default: ALUOp = 4'b0000;       
              endcase 
           end   
