@@ -14,6 +14,6 @@ add $t1, $a0, $v0  : PASS
 STALL @SLL
 slt $sp, $a0, $t1  : PASS
 lw $v0, 8($t2)     : PASS
-sll $s4, $v0, 12   : FAIL
-sllv $s6, $s4, $sp : FAIL
-addi $s6, $s6, -100: FAIL
+sll $s4, $v0, 12   : PASS
+sllv $s6, $s4, $sp : PASS
+addi $s6, $s6, -100: PASS

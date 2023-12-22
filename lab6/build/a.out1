@@ -1,0 +1,54 @@
+**** module/scope: control_alu
+     Flip-Flops   : 0
+     Logic Gates  : 1
+     LPM[5]: 6 unaccounted
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** TOTALS
+     Flip-Flops   : 0
+     Logic Gates  : 1
+     LPM[5]: 6 unaccounted
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** module/scope: control_main
+     Flip-Flops   : 0
+     Logic Gates  : 0
+     LPM[5]: 16 unaccounted
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** TOTALS
+     Flip-Flops   : 0
+     Logic Gates  : 0
+     LPM[5]: 16 unaccounted
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** module/scope: forwarding_unit
+     Flip-Flops   : 0
+     Logic Gates  : 728
+     EQUALITY[5]: 6 units
+     EQUALITY[32]: 10 units
+     MUX[2]: 8 slices
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** TOTALS
+     Flip-Flops   : 0
+     Logic Gates  : 728
+     EQUALITY[5]: 6 units
+     EQUALITY[32]: 10 units
+     MUX[2]: 8 slices
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** module/scope: hazard_unit
+     Flip-Flops   : 0
+     Logic Gates  : 28
+     EQUALITY[5]: 2 units
+     MUX[2]: 3 slices
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted
+**** TOTALS
+     Flip-Flops   : 0
+     Logic Gates  : 28
+     EQUALITY[5]: 2 units
+     MUX[2]: 3 slices
+     LOG[13]: 1 unaccounted
+     LOG[14]: 1 unaccounted

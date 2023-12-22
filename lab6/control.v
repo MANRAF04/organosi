@@ -82,18 +82,19 @@ module forwarding_unit (
 );
 
 always @(*) begin
+
     fA = 2'b00;
     fB = 2'b00;
-// always @(EXMEM_RegWrite, EXMEM_instr_rd, IDEX_instr_rs) begin
+
+    //EXMEM
     if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && (EXMEM_instr_rd == IDEX_instr_rs)) begin
         fA = 2'b10;
     end
     if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && EXMEM_instr_rd == IDEX_instr_rt) begin
         fB = 2'b10;
     end
-// end
 
-// always @(MEMWB_RegWrite, MEMWB_instr_rd, IDEX_instr_rs) begin
+    //MEMWB
     if (MEMWB_RegWrite == 1 && MEMWB_instr_rd != 0 && MEMWB_instr_rd == IDEX_instr_rs && (EXMEM_instr_rd != IDEX_instr_rs || EXMEM_RegWrite == 0)) begin
         fA = 2'b01;
     end
@@ -102,10 +103,7 @@ always @(*) begin
     end
 end
 
-
 endmodule
-
-
 
 
 /**************** Module for Stall Detection in ID pipe stage goes here  *********/
@@ -117,25 +115,19 @@ module hazard_unit (
     input IDEX_MemRead,
     input [4:0] IDEX_instr_rt,
     input [4:0] instr_rs,
-    input [4:0] instr_rt,
-    input EXMEM_MemRead,
-    input [4:0] EXMEM_RegWriteAddr);
+    input [4:0] instr_rt);
 
 always @(*) begin
+
   hazard_signal = 1;
   IFID_write = 1;
   PC_write = 1;
+
   if ((IDEX_MemRead) && ((IDEX_instr_rt == instr_rs) || (IDEX_instr_rt == instr_rt))) begin
     hazard_signal = 0;
     IFID_write = 0;
     PC_write = 0;
   end
-  // if ((EXMEM_MemRead) && ((EXMEM_RegWriteAddr == instr_rs) || (EXMEM_RegWriteAddr == instr_rt))) begin
-  //   hazard_signal = 0;
-  //   IFID_write = 0;
-  //   PC_write = 0;
-  // end
-
 
 end
 
@@ -160,13 +152,13 @@ module control_alu(output reg [3:0] ALUOp,
               6'b100101: ALUOp = 4'b0001; // or
               6'b100111: ALUOp = 4'b1100; // nor
               6'b101010: ALUOp = 4'b0111; // slt
-              6'b000000: begin 
+              6'b000000: begin // sll
                 ALUOp = 4'b1000; 
-              end // sll
-              6'b000100: begin 
+                ALUSrc_Shift = 1'b1;
+              end 
+              6'b000100: begin // sllv
                 ALUOp = 4'b1000; 
-                ALUSrc_Shift = 1'b1;  // auto :)
-              end // sllv
+              end 
               default: ALUOp = 4'b0000;       
              endcase 
           end   
@@ -175,7 +167,7 @@ module control_alu(output reg [3:0] ALUOp,
         2'b01: 
               ALUOp = 4'b0110; // sub
         default:
-              ALUOp = 4'b0000;
+              ALUOp = 4'b0000; 
      endcase
     end
 endmodule

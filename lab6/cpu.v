@@ -74,9 +74,10 @@ assign instr_rt = IFID_instr[20:16];
 assign instr_rd = IFID_instr[15:11];
 assign imm = IFID_instr[15:0];
 assign signExtend = {{16{imm[15]}}, imm};
-assign shamt = {{27{IFID_instr[10]}}, IFID_instr[10:6]};
-// assign isShImm = IFID_instr[2]; // ok
-// ti kaneis ... afou pername thn extra eisodo tou control alu des ti ua ypogramisw
+// assign shamt = {{27{IFID_instr[10]}}, IFID_instr[10:6]};
+assign shamt = {{27{1'b0}}, IFID_instr[10:6]};
+
+
 // Register file
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
 
@@ -146,33 +147,23 @@ control_main control_main (RegDst,
                   opcode);
                   
 // TO FILL IN: Instantiation of Control Unit that generates stalls
-hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt, EXMEM_MemRead, EXMEM_RegWriteAddr);
+hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
 
 
                            
 /***************** Execution Unit (EX)  ****************/
                  
-// assign ALUInA = IDEX_rdA;
-// assign ALUInA = (fA[0]) ? (wRegData) : 
-//                 (fA[1]) ? (EXMEM_ALUOut) : (IDEX_rdA);
-assign ALUInA = (fA == 2'b00) ? (IDEX_rdA) : 
+assign ALUInA = (ALUSrc_Shift) ? (IDEX_Shamt) :
+                (fA == 2'b00) ? (IDEX_rdA) : 
                 (fA == 2'b01) ? (wRegData) : (EXMEM_ALUOut);
 
 assign MemWriteData = (fB == 2'b00) ? (IDEX_rdB) : 
                       (fB == 2'b01) ? (wRegData) : (EXMEM_ALUOut);
 
-//sthn ousia nomizw meta ton mux toy ALUInB nai re
-// vevaia ti kai an kanoume enan megalo mux me shmata eisodoy to alusrc kai to alllo gia to shamt ? oxi ? swsta!
-// prepei nai katse na skeftw. prepei sgr meta ton memwrite. 8ewritika to alusrc mporoume/prepei na to xoume 0 otan kanw shift ara an to valw prin to alusrc kai na mpei sto. nai ara 8elw ena kalwdio
-// ekei anti toy ext pw katse 8eloume kai to shma an 8elei shamt h rdb an exw sll 8elw to shamt an exw sllv 8elw ton rdb.
-// Ara na pernaw kai apta pipes to pshfio 0 1 toy func? oxi pername thn extra ejodo tou alu_control
 
-// assign ALUInB = (IDEX_ALUSrc == 1'b0) ? IDEX_rdB : IDEX_signExtend;
-assign ALUInB = (IDEX_ALUSrc)  ? (IDEX_signExtend) :
-                (ALUSrc_Shift) ? (IDEX_Shamt) : (MemWriteData); 
+assign ALUInB = (IDEX_ALUSrc)  ? (IDEX_signExtend) : (MemWriteData); 
 
-//to vcd den mou deixnei ta kainourgia shmata :(
-// nop re mhpws 8elei sto exmem afou apto idex ta vgazoyme
+
 //  ALU
 ALU  #(32) cpu_alu(ALUOut, Zero, ALUInA, ALUInB, ALUOp);
 
@@ -197,7 +188,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
       begin
        EXMEM_ALUOut <= ALUOut;    
        EXMEM_RegWriteAddr <= RegWriteAddr;
-       EXMEM_MemWriteData <= MemWriteData; // edit from source
+       EXMEM_MemWriteData <= MemWriteData; 
        EXMEM_Zero <= Zero;
        EXMEM_Branch <= IDEX_Branch;     //MEM
        EXMEM_MemRead <= IDEX_MemRead;   //MEM
@@ -214,8 +205,6 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
   forwarding_unit cpu_fu(fA, fB, EXMEM_RegWrite, EXMEM_RegWriteAddr, MEMWB_RegWrite,
                          MEMWB_RegWriteAddr, IDEX_instr_rt, IDEX_instr_rs);
 
-  
-  
   
 /***************** Memory Unit (MEM)  ****************/  
 
@@ -244,15 +233,10 @@ Memory cpu_DMem(clock, reset, EXMEM_MemRead, EXMEM_MemWrite, EXMEM_ALUOut, EXMEM
        MEMWB_RegWrite <= EXMEM_RegWrite;    //WB
       end
   end
-
-  
-  
   
 
 /***************** WriteBack Unit (WB)  ****************/  
 // TO FILL IN: Write Back logic 
 assign wRegData = (MEMWB_MemToReg) ? (MEMWB_DMemOut) : (MEMWB_ALUOut);
-
-
 
 endmodule
