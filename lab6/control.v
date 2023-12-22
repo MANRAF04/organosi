@@ -7,7 +7,7 @@ module control_main(output reg RegDst,
                 output reg MemRead,
                 output reg MemWrite,  
                 output reg MemToReg,  
-                output reg ALUSrc,  
+                output reg ALUSrc, 
                 output reg RegWrite,  
                 output reg [1:0] ALUcntrl,  
                 input [5:0] opcode);
@@ -53,14 +53,14 @@ module control_main(output reg RegDst,
             ALUcntrl = 2'b01;
            end
         `ADDI:
-            begin
-              RegWrite = 1'b1;
-              ALUSrc = 1'b1;
-              ALUcntrl = 2'b00;
-            end
+          begin
+            RegWrite = 1'b1;
+            ALUSrc = 1'b1;
+            ALUcntrl = 2'b00;
+          end
        default:
            begin
-            // .............
+            MemToReg = 1'b0;
            end
       endcase
     end // always
@@ -85,7 +85,7 @@ always @(*) begin
     fA = 2'b00;
     fB = 2'b00;
 // always @(EXMEM_RegWrite, EXMEM_instr_rd, IDEX_instr_rs) begin
-    if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && EXMEM_instr_rd == IDEX_instr_rs) begin
+    if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && (EXMEM_instr_rd == IDEX_instr_rs)) begin
         fA = 2'b10;
     end
     if (EXMEM_RegWrite == 1 && EXMEM_instr_rd != 0 && EXMEM_instr_rd == IDEX_instr_rt) begin
@@ -130,11 +130,11 @@ always @(*) begin
     IFID_write = 0;
     PC_write = 0;
   end
-  if ((EXMEM_MemRead) && ((EXMEM_RegWriteAddr == instr_rs) || (EXMEM_RegWriteAddr == instr_rt))) begin
-    hazard_signal = 0;
-    IFID_write = 0;
-    PC_write = 0;
-  end
+  // if ((EXMEM_MemRead) && ((EXMEM_RegWriteAddr == instr_rs) || (EXMEM_RegWriteAddr == instr_rt))) begin
+  //   hazard_signal = 0;
+  //   IFID_write = 0;
+  //   PC_write = 0;
+  // end
 
 
 end
@@ -143,11 +143,13 @@ endmodule
 
 /************** control for ALU control in EX pipe stage  *************/
 module control_alu(output reg [3:0] ALUOp,                  
+               output reg ALUSrc_Shift, 
                input [1:0] ALUcntrl,
                input [5:0] func);
 
   always @(ALUcntrl or func)  
     begin
+      ALUSrc_Shift = 1'b0;
       case (ALUcntrl)
         2'b10: 
            begin
@@ -158,9 +160,13 @@ module control_alu(output reg [3:0] ALUOp,
               6'b100101: ALUOp = 4'b0001; // or
               6'b100111: ALUOp = 4'b1100; // nor
               6'b101010: ALUOp = 4'b0111; // slt
-              6'b000000: ALUOp = 4'b1000; // sll
-              6'b000100: ALUOp = 4'b1000; // sllv
-
+              6'b000000: begin 
+                ALUOp = 4'b1000; 
+              end // sll
+              6'b000100: begin 
+                ALUOp = 4'b1000; 
+                ALUSrc_Shift = 1'b1;  // auto :)
+              end // sllv
               default: ALUOp = 4'b0000;       
              endcase 
           end   
