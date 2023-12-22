@@ -74,8 +74,7 @@ assign instr_rt = IFID_instr[20:16];
 assign instr_rd = IFID_instr[15:11];
 assign imm = IFID_instr[15:0];
 assign signExtend = {{16{imm[15]}}, imm};
-// assign shamt = {{27{IFID_instr[10]}}, IFID_instr[10:6]};
-assign shamt = {{27{1'b0}}, IFID_instr[10:6]};
+assign shamt = {{27{1'b0}}, IFID_instr[10:6]};   // shamt should be a 32-bit unsigned int 
 
 
 // Register file
@@ -124,14 +123,14 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_instr_rt <= instr_rt;
        IDEX_Shamt <= shamt;
        IDEX_ALUSrc_Shift <= ALUSrc_Shift; //EX
-       IDEX_RegDst <= RegDst;         //EX
-       IDEX_ALUcntrl <= ALUcntrl;     //EX
-       IDEX_ALUSrc <= ALUSrc;         //EX
-       IDEX_Branch <= Branch;         //MEM (PCSrc)
-       IDEX_MemRead <= MemRead;       //MEM
-       IDEX_MemWrite <= MemWrite;     //MEM
-       IDEX_MemToReg <= MemToReg;     //WB             
-       IDEX_RegWrite <= RegWrite;     //WB
+       IDEX_RegDst <= RegDst;             //EX
+       IDEX_ALUcntrl <= ALUcntrl;         //EX
+       IDEX_ALUSrc <= ALUSrc;             //EX
+       IDEX_Branch <= Branch;             //MEM (PCSrc)
+       IDEX_MemRead <= MemRead;           //MEM
+       IDEX_MemWrite <= MemWrite;         //MEM
+       IDEX_MemToReg <= MemToReg;         //WB             
+       IDEX_RegWrite <= RegWrite;         //WB
     end
   end
 
@@ -152,15 +151,17 @@ hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr
 
                            
 /***************** Execution Unit (EX)  ****************/
-                 
+
+// ALUSrc_Shift Mux + Forward A Mux
 assign ALUInA = (ALUSrc_Shift) ? (IDEX_Shamt) :
                 (fA == 2'b00) ? (IDEX_rdA) : 
                 (fA == 2'b01) ? (wRegData) : (EXMEM_ALUOut);
 
+// Forward B Mux
 assign MemWriteData = (fB == 2'b00) ? (IDEX_rdB) : 
                       (fB == 2'b01) ? (wRegData) : (EXMEM_ALUOut);
 
-
+// IDEX_AluSrc Mux
 assign ALUInB = (IDEX_ALUSrc)  ? (IDEX_signExtend) : (MemWriteData); 
 
 
