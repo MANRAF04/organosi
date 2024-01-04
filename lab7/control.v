@@ -3,7 +3,7 @@
 
 /************** Main control in ID pipe stage  *************/
 module control_main(output reg RegDst,
-                output reg Branch,  
+                output reg PCSrc,  
                 output reg MemRead,
                 output reg MemWrite,  
                 output reg MemToReg,  
@@ -19,7 +19,7 @@ module control_main(output reg RegDst,
     MemToReg = 1'b0;
     ALUSrc = 1'b0;
     RegWrite = 1'b0; 
-    Branch =   1'b0;     
+    PCSrc =   1'b0;     
     ALUcntrl  = 2'b00;
     
      case (opcode)
@@ -48,7 +48,7 @@ module control_main(output reg RegDst,
            begin 
             RegWrite = 1'b1;
             RegDst = 1'bx;
-            Branch = 1'b1;
+            PCSrc = 1'b1;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
            end
@@ -111,7 +111,7 @@ endmodule
 module hazard_unit (
     output reg IFID_write,
     output reg PC_write,
-    output reg hazard_signal,
+    output reg bubble_idex,
     input IDEX_MemRead,
     input [4:0] IDEX_instr_rt,
     input [4:0] instr_rs,
@@ -119,12 +119,12 @@ module hazard_unit (
 
 always @(*) begin
 
-  hazard_signal = 1;
+  bubble_idex = 0;
   IFID_write = 1;
   PC_write = 1;
 
   if ((IDEX_MemRead) && ((IDEX_instr_rt == instr_rs) || (IDEX_instr_rt == instr_rt))) begin
-    hazard_signal = 0;
+    bubble_idex = 1;
     IFID_write = 0;
     PC_write = 0;
   end
