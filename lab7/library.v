@@ -21,6 +21,7 @@ module ALU #(parameter N = 32) (out, zero, inA, inB, op);
 			(op == 4'b0110) ? inA - inB : 
 			(op == 4'b0111) ? ((inA < inB)?1:0) : 
 			(op == 4'b1100) ? ~(inA | inB) :
+      (op == 4'b0100) ? inA ^ inB :
       (op == 4'b1000) ? inB << inA :
 			'bx;
 
