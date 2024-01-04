@@ -7,7 +7,7 @@
 module cpu(input clock, input reset);
  reg [31:0] PC;
  wire [31:0] PC_jump; 
- reg [31:0] IFID_PCplus4;
+ reg [31:0] IFID_PC;
  reg [31:0] IFID_instr;
  reg [31:0] IDEX_rdA, IDEX_rdB, IDEX_signExtend, IDEX_Shamt;
  reg [4:0]  IDEX_instr_rt, IDEX_instr_rs, IDEX_instr_rd;                            
@@ -53,13 +53,13 @@ module cpu(input clock, input reset);
   begin 
     if (reset == 1'b0)     
       begin
-       IFID_PCplus4 <= 32'b0;    
+       IFID_PC <= 32'b0;    
        IFID_instr <= 32'b0;
     end 
     else if (IFID_write == 1'b1) 
       begin
-       IFID_PCplus4 <= (Jump) ? (PC_jump) : (PC + 4);
-       IFID_instr <= instr;
+       IFID_PC <= (Jump) ? (PC_jump) : (PC + 4);
+       IFID_instr <= (Jump) ? (32'b0) : (instr);
     end
   end
   
