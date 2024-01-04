@@ -1,4 +1,4 @@
-`include "constants.vh"
+`include "constants.h"
 `timescale 1ns/1ps
 
 // Small ALU. Inputs: inA, inB. Output: out. 

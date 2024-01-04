@@ -1,4 +1,4 @@
-`include "constants.vh"
+`include "constants.h"
 `timescale 1ns/1ps
 
 /************** Main control in ID pipe stage  *************/
@@ -8,7 +8,8 @@ module control_main(output reg RegDst,
                 output reg MemWrite,  
                 output reg MemToReg,  
                 output reg ALUSrc, 
-                output reg RegWrite,  
+                output reg RegWrite,
+                output reg Jump,  
                 output reg [1:0] ALUcntrl,  
                 input [5:0] opcode);
 
@@ -19,7 +20,8 @@ module control_main(output reg RegDst,
     MemToReg = 1'b0;
     ALUSrc = 1'b0;
     RegWrite = 1'b0; 
-    PCSrc =   1'b0;     
+    PCSrc =   1'b0;   
+    Jump = 1'b0;  
     ALUcntrl  = 2'b00;
     
      case (opcode)
@@ -57,6 +59,15 @@ module control_main(output reg RegDst,
             RegWrite = 1'b1;
             ALUSrc = 1'b1;
             ALUcntrl = 2'b00;
+          end
+        `J:
+          begin
+            Jump = 1'b1;
+            RegDst = 1'bx;
+            ALUSrc = 1'bx;
+            PCSrc = 1'bx;
+            MemToReg = 1'bx;
+            ALUcntrl = 2'bx;
           end
        default:
            begin
