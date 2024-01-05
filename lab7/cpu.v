@@ -59,7 +59,7 @@ module cpu(input clock, input reset);
     else if (IFID_write == 1'b1) 
       begin
        IFID_PC <= (Jump) ? (PC_jump) : (PC_branch);
-       IFID_instr <= (Jump || bubble_idex) ? (32'b0) : (instr);
+       IFID_instr <= (bubble_idex) ? (32'b0) : (instr);
     end
   end
   
