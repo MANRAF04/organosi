@@ -25,9 +25,9 @@ module cpu(input clock, input reset);
  reg [31:0] MEMWB_ALUOut;
  reg        MEMWB_MemToReg, MEMWB_RegWrite;               
  reg        Iren = 1'b1,Iwen = 1'b0;
- wire [31:0] din,mdout;
+ wire [31:0] din,mdout, signExtend_Shift, PC_label, PC_branch;
  wire [31:0] instr, MemWriteData, ALUInA, ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr, shamt;
- wire Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Jump, PCSrc, PC_write, IFID_write, bubble_idex, ALUSrc_Shift;
+ wire Zero, Branch_Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Jump, PCSrc, PC_write, IFID_write, bubble_idex, ALUSrc_Shift;
  wire [5:0] opcode, func;
  wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr;
  wire [3:0] ALUOp;
@@ -45,7 +45,7 @@ module cpu(input clock, input reset);
     else if (PC == -1)
        PC <= 0;
     else if (PC_write == 1'b1)
-       PC <= (Jump) ? (PC_jump) : (PC + 4);
+       PC <= (Jump) ? (PC_jump) : (PC_branch);
   end
   
   // IFID pipeline register
@@ -58,7 +58,7 @@ module cpu(input clock, input reset);
     end 
     else if (IFID_write == 1'b1) 
       begin
-       IFID_PC <= (Jump) ? (PC_jump) : (PC + 4);
+       IFID_PC <= (Jump) ? (PC_jump) : (PC_branch);
        IFID_instr <= (Jump) ? (32'b0) : (instr);
     end
   end
@@ -76,8 +76,11 @@ assign instr_rd = IFID_instr[15:11];
 assign imm = IFID_instr[15:0];
 assign signExtend = {{16{imm[15]}}, imm};
 assign shamt = {{27{1'b0}}, IFID_instr[10:6]};   // shamt should be a 32-bit unsigned int 
-assign PC_jump = {PC[31:28], (IFID_instr[25:0] << 2)};
-
+assign PC_jump = {PC[31:28], (IFID_instr[25:0] << 2)}; // for jump instructions
+assign Branch_Zero = (rdB == rdA);         // comparator for branch instrunctions
+assign signExtend_Shift = signExtend << 2;
+assign PC_label = signExtend_Shift + IFID_PC; 
+assign PC_branch = (PCSrc) ? (PC_label) : (PC + 4);
 
 // Register file
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
@@ -146,10 +149,11 @@ control_main control_main (RegDst,
                   RegWrite,
                   Jump,
                   ALUcntrl,
+                  Branch_Zero,
                   opcode);
                   
 // TO FILL IN: Instantiation of Control Unit that generates stalls
-hazard_unit cpu_hu(IFID_write, PC_write, bubble_idex, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
+hazard_unit cpu_hu(IFID_write, PC_write, bubble_idex, PCSrc, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
 
 
                            

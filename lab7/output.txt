@@ -26,14 +26,21 @@ j L1               : PASS
 lw $t9, 8($t2)     : PASS
 sw $gp, 8($t2)     : PASS
 STALL lw --> beq
-sll $s0, $t5, 1    : PASS
-lw $v0, 8($t2)     : PASS
-FLUSH BEQ
-beq $v0, $s0, L2   : PASS
-FLUSH J 
-add $t4, $t4, $t4  : PASS
-sll $s4, $v0, 12   : PASS
-sllv $s6, $s4, $sp : PASS
-j L1               : PASS
-lw $t9, 8($t2)     : PASS
-sw $gp, 8($t2)     : PASS
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq
+STALL lw --> beq

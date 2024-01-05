@@ -10,7 +10,8 @@ module control_main(output reg RegDst,
                 output reg ALUSrc, 
                 output reg RegWrite,
                 output reg Jump,  
-                output reg [1:0] ALUcntrl,  
+                output reg [1:0] ALUcntrl,
+                input Branch_Zero,  
                 input [5:0] opcode);
 
   always @(*) begin
@@ -50,10 +51,18 @@ module control_main(output reg RegDst,
            begin 
             RegWrite = 1'b1;
             RegDst = 1'bx;
-            PCSrc = 1'b1;
+            PCSrc = (Branch_Zero) ? 1'b1 : 1'b0;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
            end
+        `BNE:
+          begin
+            RegWrite = 1'b1;
+            RegDst = 1'bx;
+            PCSrc = (!Branch_Zero) ? 1'b1 : 1'b0;
+            MemToReg = 1'bx;
+            ALUcntrl = 2'b01;
+          end
         `ADDI:
           begin
             RegWrite = 1'b1;
@@ -123,6 +132,7 @@ module hazard_unit (
     output reg IFID_write,
     output reg PC_write,
     output reg bubble_idex,
+    input PCSrc,
     input IDEX_MemRead,
     input [4:0] IDEX_instr_rt,
     input [4:0] instr_rs,
@@ -133,6 +143,12 @@ always @(*) begin
   bubble_idex = 0;
   IFID_write = 1;
   PC_write = 1;
+
+  if (PCSrc) begin
+    bubble_idex = 1;
+    IFID_write = 0;
+    PC_write = 0;
+  end
 
   if ((IDEX_MemRead) && ((IDEX_instr_rt == instr_rs) || (IDEX_instr_rt == instr_rt))) begin
     bubble_idex = 1;
