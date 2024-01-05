@@ -25,13 +25,13 @@ module cpu(input clock, input reset);
  reg [31:0] MEMWB_ALUOut;
  reg        MEMWB_MemToReg, MEMWB_RegWrite;               
  reg        Iren = 1'b1,Iwen = 1'b0;
- wire [31:0] din,mdout, signExtend_Shift, PC_label, PC_branch;
+ wire [31:0] din,mdout, signExtend_Shift, PC_label, PC_branch, comp_inA, comp_inB;
  wire [31:0] instr, MemWriteData, ALUInA, ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr, shamt;
  wire Zero, Branch_Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Jump, PCSrc, PC_write, IFID_write, bubble_idex, ALUSrc_Shift;
  wire [5:0] opcode, func;
  wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr;
  wire [3:0] ALUOp;
- wire [1:0] ALUcntrl, fA, fB;
+ wire [1:0] ALUcntrl, fA, fB, fC, fD;
  wire [15:0] imm;
 
  
@@ -59,7 +59,7 @@ module cpu(input clock, input reset);
     else if (IFID_write == 1'b1) 
       begin
        IFID_PC <= (Jump) ? (PC_jump) : (PC_branch);
-       IFID_instr <= (Jump) ? (32'b0) : (instr);
+       IFID_instr <= (Jump || bubble_idex) ? (32'b0) : (instr);
     end
   end
   
@@ -77,13 +77,19 @@ assign imm = IFID_instr[15:0];
 assign signExtend = {{16{imm[15]}}, imm};
 assign shamt = {{27{1'b0}}, IFID_instr[10:6]};   // shamt should be a 32-bit unsigned int 
 assign PC_jump = {PC[31:28], (IFID_instr[25:0] << 2)}; // for jump instructions
-assign Branch_Zero = (rdB == rdA);         // comparator for branch instrunctions
 assign signExtend_Shift = signExtend << 2;
 assign PC_label = signExtend_Shift + IFID_PC; 
 assign PC_branch = (PCSrc) ? (PC_label) : (PC + 4);
+assign comp_inA = (fC) ? (EXMEM_ALUOut) : (rdA);
+assign comp_inB = (fD) ? (EXMEM_ALUOut) : (rdB);
+assign Branch_Zero = (comp_inB == comp_inA);         // comparator for branch instrunctions
+
 
 // Register file
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
+
+// ID Forward Unit
+ID_forwarding_unit cpu_ifu (fC, fD, PCSrc, EXMEM_instr_rd, IFID_instr_rt, IFID_instr_rs); 
 
   // IDEX pipeline register
  always @(posedge clock or negedge reset)
@@ -153,7 +159,7 @@ control_main control_main (RegDst,
                   opcode);
                   
 // TO FILL IN: Instantiation of Control Unit that generates stalls
-hazard_unit cpu_hu(IFID_write, PC_write, bubble_idex, PCSrc, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
+hazard_unit cpu_hu(IFID_write, PC_write, bubble_idex, PCSrc, Jump, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
 
 
                            
@@ -210,7 +216,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
   control_alu control_alu(ALUOp, ALUSrc_Shift, IDEX_ALUcntrl, IDEX_signExtend[5:0]);
   
    // TO FILL IN: Instantiation of control logic for Forwarding goes here
-  forwarding_unit cpu_fu(fA, fB, EXMEM_RegWrite, EXMEM_RegWriteAddr, MEMWB_RegWrite,
+  EX_forwarding_unit cpu_efu(fA, fB, EXMEM_RegWrite, EXMEM_RegWriteAddr, MEMWB_RegWrite,
                          MEMWB_RegWriteAddr, IDEX_instr_rt, IDEX_instr_rs);
 
   

@@ -90,7 +90,7 @@ endmodule
 /**************** Module for Bypass Detection in EX pipe stage goes here  *********/
 // TO FILL IN: Module details 
 // endmodule          
-module forwarding_unit (
+module EX_forwarding_unit (
   output reg [1:0] fA,
   output reg [1:0] fB,
   input EXMEM_RegWrite,
@@ -125,6 +125,35 @@ end
 
 endmodule
 
+/**************** Module for Bypass Detection in ID pipe stage goes here  *********/
+// TO FILL IN: Module details 
+// endmodule          
+module ID_forwarding_unit (
+  output reg  fC,
+  output reg  fD,
+  input PCSrc,
+  input [4:0] EXMEM_instr_rd,
+  input [4:0] IFID_instr_rt,
+  input [4:0] IFID_instr_rs
+);
+
+always @(*) begin
+
+    fC = 1'b0;
+    fD = 1'b0;
+
+    if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rs)) begin
+      fC = 1'b1;
+    end
+
+    if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rt)) begin
+      fD = 1'b1;
+    end
+
+end
+
+endmodule
+
 
 /**************** Module for Stall Detection in ID pipe stage goes here  *********/
 // TO FILL IN: Module details 
@@ -133,6 +162,7 @@ module hazard_unit (
     output reg PC_write,
     output reg bubble_idex,
     input PCSrc,
+    input Jump,
     input IDEX_MemRead,
     input [4:0] IDEX_instr_rt,
     input [4:0] instr_rs,
@@ -144,10 +174,10 @@ always @(*) begin
   IFID_write = 1;
   PC_write = 1;
 
-  if (PCSrc) begin
+  if (PCSrc || Jump) begin
     bubble_idex = 1;
-    IFID_write = 0;
-    PC_write = 0;
+    // IFID_write = 0;
+    // PC_write = 0;
   end
 
   if ((IDEX_MemRead) && ((IDEX_instr_rt == instr_rs) || (IDEX_instr_rt == instr_rt))) begin
