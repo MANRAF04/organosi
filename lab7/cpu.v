@@ -31,7 +31,8 @@ module cpu(input clock, input reset);
  wire [5:0] opcode, func;
  wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr;
  wire [3:0] ALUOp;
- wire [1:0] ALUcntrl, fA, fB, fC, fD;
+ wire [1:0] ALUcntrl, fA, fB;
+ wire fC, fD;
  wire [15:0] imm;
 
  
@@ -89,7 +90,7 @@ assign Branch_Zero = (comp_inB == comp_inA);         // comparator for branch in
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
 
 // ID Forward Unit
-ID_forwarding_unit cpu_ifu (fC, fD, PCSrc, EXMEM_instr_rd, IFID_instr_rt, IFID_instr_rs); 
+ID_forwarding_unit cpu_ifu (fC, fD, PCSrc, EXMEM_instr_rd, instr_rt, instr_rs); 
 
   // IDEX pipeline register
  always @(posedge clock or negedge reset)
