@@ -90,7 +90,7 @@ assign Branch_Zero = (comp_inB == comp_inA);         // comparator for branch in
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
 
 // ID Forward Unit
-ID_forwarding_unit cpu_ifu (fC, fD, PCSrc, EXMEM_instr_rd, instr_rt, instr_rs); 
+ID_forwarding_unit cpu_ifu (fC, fD, PCSrc, IDEX_instr_rd, instr_rt, instr_rs); // SHOULD BE EXMEM_instr_rd !!
 
   // IDEX pipeline register
  always @(posedge clock or negedge reset)
