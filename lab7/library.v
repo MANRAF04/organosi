@@ -70,13 +70,13 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
   input   [4:0] raA, raB, wa;
   input         wen;
   input  [31:0] wd;
-  output [31:0] rdA, rdB;
+  output wire [31:0] rdA, rdB;
   integer i;
   
   reg [31:0] data[31:0];
   
-  wire [31:0] rdA = data[raA];
-  wire [31:0] rdB = data[raB];
+  assign rdA = data[raA];
+  assign rdB = data[raB];
   
   // Make sure  that register file is only written at the negative edge of the clock 
   always @(negedge clock or negedge reset)
@@ -89,3 +89,48 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
    end
 
 endmodule
+
+
+// idea for posedge regfile (failed at pc=40):
+
+// Register File. Read ports: address raA, data rdA
+//                            address raB, data rdB
+//                Write port: address wa, data wd, enable wen.
+// module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
+//   input clock, reset;
+//   input   [4:0] raA, raB, wa;
+//   input         wen;
+//   input  [31:0] wd;
+//   output reg [31:0] rdA, rdB;
+//   integer i;
+  
+//   reg [31:0] data[31:0];
+//   reg [31:0] buffer;
+
+//   // Make sure  that register file is only written at the negative edge of the clock 
+//   always @(negedge clock or negedge reset)
+//    begin
+//     if (reset == 1'b0)
+//         for (i = 0; i < 32; i = i+1)
+//          data[i] = i;   // Note that R0 = 0 in MIPS 
+//     else if( wen == 1'b1 && wa != 5'b0)
+//         buffer <=  wd;
+//    end
+
+//   always @(posedge clock, raA, raB) begin
+//     rdA = data[raA];
+//     rdB = data[raB];
+  
+//     if (wa == raA) begin
+//       rdA = buffer;
+//     end
+
+//     if (wa == raB) begin
+//       rdB = buffer;
+//     end
+
+//     data[wa] = buffer;
+
+//   end
+
+// endmodule
