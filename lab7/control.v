@@ -3,15 +3,16 @@
 
 /************** Main control in ID pipe stage  *************/
 module control_main(output reg RegDst,
-                output reg PCSrc,  
                 output reg MemRead,
                 output reg MemWrite,  
                 output reg MemToReg,  
                 output reg ALUSrc, 
                 output reg RegWrite,
                 output reg Jump,  
+                output reg Branch,
+                output reg Branch_on_Zero,
+                output reg bubble_idex,  
                 output reg [1:0] ALUcntrl,
-                input Branch_Zero,  
                 input [5:0] opcode);
 
   always @(*) begin
@@ -21,10 +22,11 @@ module control_main(output reg RegDst,
     MemToReg = 1'b0;
     ALUSrc = 1'b0;
     RegWrite = 1'b0; 
-    PCSrc =   1'b0;   
     Jump = 1'b0;  
+    Branch <= 1'b0;    
     ALUcntrl  = 2'b00;
-    
+    bubble_idex = 1'b1;
+
      case (opcode)
       `R_FORMAT: 
       /* TO FILL IN: The control signal values in each and every case */
@@ -51,7 +53,9 @@ module control_main(output reg RegDst,
            begin 
             RegWrite = 1'b1;
             RegDst = 1'bx;
-            PCSrc = (Branch_Zero) ? 1'b1 : 1'b0;
+            Branch = 1'b1;
+            Branch_on_Zero = 1'b1;
+            bubble_idex = 1'b1;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
            end
@@ -59,7 +63,8 @@ module control_main(output reg RegDst,
           begin
             RegWrite = 1'b1;
             RegDst = 1'bx;
-            PCSrc = (!Branch_Zero) ? 1'b1 : 1'b0;
+            Branch = 1'b1;
+            bubble_idex = 1'b1;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
           end
@@ -74,7 +79,6 @@ module control_main(output reg RegDst,
             Jump = 1'b1;
             RegDst = 1'bx;
             ALUSrc = 1'bx;
-            PCSrc = 1'bx;
             MemToReg = 1'bx;
             ALUcntrl = 2'bx;
           end
@@ -125,34 +129,34 @@ end
 
 endmodule
 
-/**************** Module for Bypass Detection in ID pipe stage goes here  *********/
-// TO FILL IN: Module details 
-// endmodule          
-module ID_forwarding_unit (
-  output reg  fC,
-  output reg  fD,
-  input PCSrc,
-  input [4:0] EXMEM_instr_rd,
-  input [4:0] IFID_instr_rt,
-  input [4:0] IFID_instr_rs
-);
+// /**************** Module for Bypass Detection in ID pipe stage goes here  *********/
+// // TO FILL IN: Module details 
+// // endmodule          
+// module ID_forwarding_unit (
+//   output reg  fC,
+//   output reg  fD,
+//   input PCSrc,
+//   input [4:0] EXMEM_instr_rd,
+//   input [4:0] IFID_instr_rt,
+//   input [4:0] IFID_instr_rs
+// );
 
-always @(*) begin
+// always @(*) begin
 
-    fC = 1'b0;
-    fD = 1'b0;
+//     fC = 1'b0;
+//     fD = 1'b0;
 
-    if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rs)) begin
-      fC = 1'b1;
-    end
+//     if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rs)) begin
+//       fC = 1'b1;
+//     end
 
-    if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rt)) begin
-      fD = 1'b1;
-    end
+//     if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rt)) begin
+//       fD = 1'b1;
+//     end
 
-end
+// end
 
-endmodule
+// endmodule
 
 
 /**************** Module for Stall Detection in ID pipe stage goes here  *********/
@@ -160,9 +164,7 @@ endmodule
 module hazard_unit (
     output reg IFID_write,
     output reg PC_write,
-    output reg bubble_idex,
-    input PCSrc,
-    input Jump,
+    output reg hazard_signal,
     input IDEX_MemRead,
     input [4:0] IDEX_instr_rt,
     input [4:0] instr_rs,
@@ -170,18 +172,12 @@ module hazard_unit (
 
 always @(*) begin
 
-  bubble_idex = 0;
+  hazard_signal = 0;
   IFID_write = 1;
   PC_write = 1;
 
-  if (PCSrc || Jump) begin
-    bubble_idex = 1;
-    // IFID_write = 0;
-    // PC_write = 0;
-  end
-
   if ((IDEX_MemRead) && ((IDEX_instr_rt == instr_rs) || (IDEX_instr_rt == instr_rt))) begin
-    bubble_idex = 1;
+    hazard_signal = 1;
     IFID_write = 0;
     PC_write = 0;
   end

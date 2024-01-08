@@ -62,9 +62,9 @@ module Memory (clock, reset, ren, wen, addr, din, dout);
 endmodule
 
 
-// Register File. Read ports: address raA, data rdA
-//                            address raB, data rdB
-//                Write port: address wa, data wd, enable wen.
+// // Register File. Read ports: address raA, data rdA
+// //                            address raB, data rdB
+// //                Write port: address wa, data wd, enable wen.
 module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
   input clock, reset;
   input   [4:0] raA, raB, wa;
@@ -92,7 +92,6 @@ endmodule
 
 
 // idea for posedge regfile (failed at pc=40):
-
 // Register File. Read ports: address raA, data rdA
 //                            address raB, data rdB
 //                Write port: address wa, data wd, enable wen.
@@ -121,11 +120,11 @@ endmodule
 //     rdA = data[raA];
 //     rdB = data[raB];
   
-//     if (wa == raA) begin
+//     if (wa == raA && wen == 1'b1) begin
 //       rdA = buffer;
 //     end
 
-//     if (wa == raB) begin
+//     if (wa == raB && wen == 1'b1) begin
 //       rdB = buffer;
 //     end
 
@@ -133,4 +132,59 @@ endmodule
 
 //   end
 
+// endmodule
+
+
+
+// module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
+//   input clock, reset;
+//   input   [4:0] raA, raB, wa;
+//   input         wen;
+//   input  [31:0] wd;
+//   output [31:0] rdA, rdB;
+  
+//   integer i;
+//   reg [31:0] rdA, rdB;
+ 
+//   reg [31:0] data[31:0];
+  
+  
+  
+//   //assign rdA = (raA == wa && wen == 1'b1) ? wd : data[raA];
+//   //assign rdB = (raB == wa && wen == 1'b1) ? wd : data[raB];
+  
+//   //wire [31:0] rdA = data[raA];
+//   //wire [31:0] rdB = data[raB];
+  
+//   // Make sure  that register file is only written at the negative edge of the clock 
+//   always @(posedge clock or negedge reset)
+//    begin
+//     if (reset == 1'b0)
+//         for (i = 0; i < 32; i = i+1)
+//          data[i] = i;   // Note that R0 = 0 in MIPS 
+//     else 
+//       begin
+//       if( wen == 1'b1  && wa != 5'b0)
+//         begin
+//         data[wa] <=  wd;
+//         end
+//     if (raA == wa && wen == 1'b1 )
+//       begin
+//       rdA <= wd;
+//       end
+//     else 
+//       begin
+//         rdA <= data[raA];
+//       end
+
+//     if (raB == wa && wen == 1'b1 )
+//       begin
+//         rdB <= wd;
+//       end
+//     else
+//       begin
+//         rdB <= data[raB];
+//       end
+//    end
+//    end
 // endmodule
