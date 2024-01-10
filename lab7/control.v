@@ -23,9 +23,9 @@ module control_main(output reg RegDst,
     ALUSrc = 1'b0;
     RegWrite = 1'b0; 
     Jump = 1'b0;  
-    Branch <= 1'b0;    
+    Branch = 1'b0;    
     ALUcntrl  = 2'b00;
-    bubble_idex = 1'b1;
+    bubble_idex = 1'b0;
 
      case (opcode)
       `R_FORMAT: 
@@ -51,7 +51,6 @@ module control_main(output reg RegDst,
            end
        `BEQ:  
            begin 
-            RegWrite = 1'b1;
             RegDst = 1'bx;
             Branch = 1'b1;
             Branch_on_Zero = 1'b1;
@@ -61,7 +60,6 @@ module control_main(output reg RegDst,
            end
         `BNE:
           begin
-            RegWrite = 1'b1;
             RegDst = 1'bx;
             Branch = 1'b1;
             bubble_idex = 1'b1;
