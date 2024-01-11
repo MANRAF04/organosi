@@ -11,7 +11,7 @@ module cpu(input clock, input reset);
  reg [31:0] IFID_instr;
  reg [31:0] IDEX_rdA, IDEX_rdB, IDEX_signExtend, IDEX_Shamt;
  reg [4:0]  IDEX_instr_rt, IDEX_instr_rs, IDEX_instr_rd;                            
- reg        IDEX_RegDst, IDEX_ALUSrc, IDEX_ALUSrc_Shift, IDEX_Branch, IDEX_Branch_on_Zero;
+ reg        IDEX_RegDst, IDEX_ALUSrc, IDEX_ALUSrc_Shift, IDEX_Branch;
  reg [1:0]  IDEX_ALUcntrl;
  reg        IDEX_MemRead, IDEX_MemWrite; 
  reg        IDEX_MemToReg, IDEX_RegWrite;                
@@ -19,7 +19,7 @@ module cpu(input clock, input reset);
  reg [31:0] EXMEM_ALUOut;
  reg        EXMEM_Zero;
  reg [31:0] EXMEM_MemWriteData, EXMEM_PC_label;
- reg        EXMEM_MemRead, EXMEM_MemWrite, EXMEM_RegWrite, EXMEM_MemToReg, EXMEM_Branch, EXMEM_Branch_on_Zero;
+ reg        EXMEM_MemRead, EXMEM_MemWrite, EXMEM_RegWrite, EXMEM_MemToReg, EXMEM_Branch;
  reg [31:0] MEMWB_DMemOut;
  reg [4:0]  MEMWB_RegWriteAddr; 
  reg [31:0] MEMWB_ALUOut;
@@ -27,18 +27,16 @@ module cpu(input clock, input reset);
  reg        Iren = 1'b1,Iwen = 1'b0;
  wire [31:0] din,mdout, signExtend_Shift, PC_label, PC_no_jump, comp_inA, comp_inB, forward_reg_data;
  wire [31:0] instr, MemWriteData, ALUInA, ALUInB, ALUOut, rdA, rdB, signExtend, DMemOut, wRegData, PCIncr, shamt;
- wire Zero, Zero4Branch, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Jump, PCSrc, Branch, Branch_on_Zero, PC_write, IFID_write, bubble_idex, hazard_signal, ALUSrc_Shift;
+ wire Zero, RegDst, MemRead, MemWrite, MemToReg, ALUSrc, RegWrite, Jump, PCSrc, Branch, PC_write, bubble_idex, IFID_write, hazard_signal, ALUSrc_Shift;
  wire [5:0] opcode, func; 
  reg [5:0] IDEX_opcode, EXMEM_opcode;
  wire [4:0] instr_rs, instr_rt, instr_rd, RegWriteAddr;
  wire [3:0] ALUOp;
  wire [1:0] ALUcntrl, fA, fB;
- // wire fC, fD;
  wire [15:0] imm;
 
  
  
-assign bubble_idex = (PCSrc) ? (1'b1) : (1'b0);
 /***************** Instruction Fetch Unit (IF)  ****************/
  always @(posedge clock or negedge reset)
   begin 
@@ -60,7 +58,7 @@ assign bubble_idex = (PCSrc) ? (1'b1) : (1'b0);
     end 
     else if (IFID_write == 1'b1) 
       begin
-       IFID_PC <= PC + 4;
+       IFID_PC <= (Jump || bubble_idex) ? (32'b0) : (PC + 4);
        IFID_instr <= (Jump || bubble_idex) ? (32'b0) : (instr);
     end
   end
@@ -82,17 +80,12 @@ assign signExtend = {{16{imm[15]}}, imm};
 assign shamt = {{27{1'b0}}, IFID_instr[10:6]};   // shamt should be a 32-bit unsigned int 
 assign PC_jump = {IFID_PC[31:28], (IFID_instr[25:0] << 2)}; // for jump instructions
 
-//assign comp_inA = (fC) ? (EXMEM_ALUOut) : (rdA);
-//assign comp_inB = (fD) ? (EXMEM_ALUOut) : (rdB);
-
 
 // Register file
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
 
-// ID Forward Unit
-//ID_forwarding_unit cpu_ifu (fC, fD, PCSrc, IDEX_instr_rd, instr_rt, instr_rs); // SHOULD BE EXMEM_instr_rd !!
 
-  // IDEX pipeline register
+// IDEX pipeline register
  always @(posedge clock or negedge reset)
   begin 
     if (reset == 1'b0 || bubble_idex)
@@ -114,7 +107,6 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_ALUSrc_Shift <= 1'b0;
        IDEX_Shamt <= 1'b0;
        IDEX_Branch <= 1'b0;
-       IDEX_Branch_on_Zero <= 1'b0;
        IDEX_opcode <= 1'b0;
     end
     else if (hazard_signal) begin
@@ -127,7 +119,6 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
       IDEX_MemToReg <= 1'b0;
       IDEX_RegWrite <= 1'b0;
       IDEX_Branch <= 1'b0;
-      IDEX_Branch_on_Zero <= 1'b0;
     end 
     else 
       begin
@@ -144,8 +135,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_ALUcntrl <= ALUcntrl;         //EX
        IDEX_ALUSrc <= ALUSrc;             //EX
        IDEX_Branch <= Branch;           //MEM
-       IDEX_Branch_on_Zero <= Branch_on_Zero;
-       IDEX_opcode <= opcode;
+       IDEX_opcode <= opcode;           //MEM
        IDEX_MemRead <= MemRead;           //MEM
        IDEX_MemWrite <= MemWrite;         //MEM
        IDEX_MemToReg <= MemToReg;         //WB             
@@ -162,12 +152,11 @@ control_main control_main (RegDst,
                   RegWrite,
                   Jump,
                   Branch,
-                  Branch_on_Zero,
                   ALUcntrl,
                   opcode);
                   
 // TO FILL IN: Instantiation of Control Unit that generates stalls
-hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, IDEX_MemRead, IDEX_instr_rt, instr_rs, instr_rt);
+hazard_unit cpu_hu(IFID_write, PC_write, hazard_signal, bubble_idex, IDEX_MemRead, PCSrc, IDEX_instr_rt, instr_rs, instr_rt);
 
 
                            
@@ -195,7 +184,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
  // EXMEM pipeline register
  always @(posedge clock or negedge reset)
   begin 
-    if (reset == 1'b0)     
+    if (reset == 1'b0 || bubble_idex)     
       begin
        EXMEM_ALUOut <= 32'b0;    
        EXMEM_RegWriteAddr <= 5'b0;
@@ -207,7 +196,6 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
        EXMEM_RegWrite <= 1'b0;
        EXMEM_PC_label <= 1'b0;
        EXMEM_Branch <= 1'b0;
-       EXMEM_Branch_on_Zero <= 1'b0;
        EXMEM_opcode <= 1'b0;
       end 
     else 
@@ -220,8 +208,7 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
        EXMEM_MemWrite <= IDEX_MemWrite; //MEM
        EXMEM_PC_label <= PC_label;      //MEM
        EXMEM_Branch <= IDEX_Branch;     //MEM
-       EXMEM_Branch_on_Zero <= IDEX_Branch_on_Zero; //MEM
-       EXMEM_opcode <= IDEX_opcode;
+       EXMEM_opcode <= IDEX_opcode;     //MEM
        EXMEM_MemToReg <= IDEX_MemToReg; //WB                 
        EXMEM_RegWrite <= IDEX_RegWrite; //WB
       end
@@ -236,7 +223,6 @@ assign RegWriteAddr = (IDEX_RegDst==1'b0) ? IDEX_instr_rt : IDEX_instr_rd;
 
   
 /***************** Memory Unit (MEM)  ****************/  
-assign Zero4Branch = (EXMEM_Branch_on_Zero) ? (EXMEM_Zero) : (~(EXMEM_Zero));
 assign PCSrc = (EXMEM_Branch) && (EXMEM_Zero ^ EXMEM_opcode[0]);
 
 // Data memory 1KB
@@ -269,6 +255,6 @@ Memory cpu_DMem(clock, reset, EXMEM_MemRead, EXMEM_MemWrite, EXMEM_ALUOut, EXMEM
 /***************** WriteBack Unit (WB)  ****************/  
 // TO FILL IN: Write Back logic 
 assign wRegData = (MEMWB_MemToReg) ? (MEMWB_DMemOut) : (MEMWB_ALUOut);
-assign forward_reg_data = (MEMWB_MemToReg) ? MEMWB_DMemOut : MEMWB_ALUOut;
+assign forward_reg_data = (MEMWB_MemToReg) ? (MEMWB_DMemOut) : (MEMWB_ALUOut);
 
 endmodule

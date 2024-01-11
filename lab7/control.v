@@ -10,7 +10,6 @@ module control_main(output reg RegDst,
                 output reg RegWrite,
                 output reg Jump,  
                 output reg Branch,
-                output reg Branch_on_Zero,
                 output reg [1:0] ALUcntrl,
                 input [5:0] opcode);
 
@@ -51,7 +50,6 @@ module control_main(output reg RegDst,
            begin 
             RegDst = 1'bx;
             Branch = 1'b1;
-            Branch_on_Zero = 1'b1;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
            end
@@ -123,35 +121,6 @@ end
 
 endmodule
 
-// /**************** Module for Bypass Detection in ID pipe stage goes here  *********/
-// // TO FILL IN: Module details 
-// // endmodule          
-// module ID_forwarding_unit (
-//   output reg  fC,
-//   output reg  fD,
-//   input PCSrc,
-//   input [4:0] EXMEM_instr_rd,
-//   input [4:0] IFID_instr_rt,
-//   input [4:0] IFID_instr_rs
-// );
-
-// always @(*) begin
-
-//     fC = 1'b0;
-//     fD = 1'b0;
-
-//     if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rs)) begin
-//       fC = 1'b1;
-//     end
-
-//     if ((PCSrc) && (EXMEM_instr_rd != 0) && (EXMEM_instr_rd == IFID_instr_rt)) begin
-//       fD = 1'b1;
-//     end
-
-// end
-
-// endmodule
-
 
 /**************** Module for Stall Detection in ID pipe stage goes here  *********/
 // TO FILL IN: Module details 
@@ -159,10 +128,22 @@ module hazard_unit (
     output reg IFID_write,
     output reg PC_write,
     output reg hazard_signal,
+    output reg bubble_idex,
     input IDEX_MemRead,
+    input PCSrc,
     input [4:0] IDEX_instr_rt,
     input [4:0] instr_rs,
     input [4:0] instr_rt);
+
+always @(PCSrc) begin  // This is for beq and bne control hazards.
+  if (PCSrc) begin
+    bubble_idex = 1;
+  end
+  else begin
+    bubble_idex = 0;
+  end
+
+end
 
 always @(*) begin
 
