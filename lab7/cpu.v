@@ -38,7 +38,7 @@ module cpu(input clock, input reset);
 
  
  
-
+assign bubble_idex = (PCSrc) ? (1'b1) : (1'b0);
 /***************** Instruction Fetch Unit (IF)  ****************/
  always @(posedge clock or negedge reset)
   begin 
@@ -61,7 +61,7 @@ module cpu(input clock, input reset);
     else if (IFID_write == 1'b1) 
       begin
        IFID_PC <= PC + 4;
-       IFID_instr <= (instr);
+       IFID_instr <= (Jump || bubble_idex) ? (32'b0) : (instr);
     end
   end
 
@@ -95,7 +95,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
   // IDEX pipeline register
  always @(posedge clock or negedge reset)
   begin 
-    if (reset == 1'b0)
+    if (reset == 1'b0 || bubble_idex)
       begin
        IDEX_PC <= 1'b0;
        IDEX_rdA <= 32'b0;    
@@ -117,7 +117,7 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
        IDEX_Branch_on_Zero <= 1'b0;
        IDEX_opcode <= 1'b0;
     end
-    else if (Jump || bubble_idex || hazard_signal) begin
+    else if (hazard_signal) begin
       IDEX_RegDst <= 1'b0;
       IDEX_ALUcntrl <= 2'b00;
       IDEX_ALUSrc <= 1'b0;
@@ -163,7 +163,6 @@ control_main control_main (RegDst,
                   Jump,
                   Branch,
                   Branch_on_Zero,
-                  bubble_idex,
                   ALUcntrl,
                   opcode);
                   

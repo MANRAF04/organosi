@@ -11,7 +11,6 @@ module control_main(output reg RegDst,
                 output reg Jump,  
                 output reg Branch,
                 output reg Branch_on_Zero,
-                output reg bubble_idex,  
                 output reg [1:0] ALUcntrl,
                 input [5:0] opcode);
 
@@ -25,7 +24,6 @@ module control_main(output reg RegDst,
     Jump = 1'b0;  
     Branch = 1'b0;    
     ALUcntrl  = 2'b00;
-    bubble_idex = 1'b0;
 
      case (opcode)
       `R_FORMAT: 
@@ -54,7 +52,6 @@ module control_main(output reg RegDst,
             RegDst = 1'bx;
             Branch = 1'b1;
             Branch_on_Zero = 1'b1;
-            bubble_idex = 1'b1;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
            end
@@ -62,7 +59,6 @@ module control_main(output reg RegDst,
           begin
             RegDst = 1'bx;
             Branch = 1'b1;
-            bubble_idex = 1'b1;
             MemToReg = 1'bx;
             ALUcntrl = 2'b01;
           end
