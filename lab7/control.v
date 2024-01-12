@@ -111,10 +111,10 @@ always @(*) begin
     end
 
     //MEMWB
-    if (MEMWB_RegWrite == 1 && MEMWB_instr_rd != 0 && MEMWB_instr_rd == IDEX_instr_rs && (EXMEM_instr_rd != IDEX_instr_rs || EXMEM_RegWrite == 0)) begin
+    if (MEMWB_RegWrite == 1 && MEMWB_instr_rd != 0 && MEMWB_instr_rd == IDEX_instr_rs && (EXMEM_instr_rd != IDEX_instr_rs || EXMEM_RegWrite == 0 || EXMEM_instr_rd == 0)) begin
         fA = 2'b01;
     end
-    if (MEMWB_RegWrite == 1 && MEMWB_instr_rd != 0 && MEMWB_instr_rd == IDEX_instr_rt && (EXMEM_instr_rd != IDEX_instr_rt || EXMEM_RegWrite == 0)) begin
+    if (MEMWB_RegWrite == 1 && MEMWB_instr_rd != 0 && MEMWB_instr_rd == IDEX_instr_rt && (EXMEM_instr_rd != IDEX_instr_rt || EXMEM_RegWrite == 0 || EXMEM_instr_rd == 0)) begin
         fB = 2'b01;
     end
 end
