@@ -9,7 +9,8 @@ module cpu(input clock, input reset);
  wire [31:0] PC_jump; 
  reg [31:0] IFID_PC, IDEX_PC;
  reg [31:0] IFID_instr;
- reg [31:0] IDEX_rdA, IDEX_rdB, IDEX_signExtend, IDEX_Shamt;
+ reg [31:0] IDEX_signExtend, IDEX_Shamt;
+ wire [31:0] IDEX_rdA, IDEX_rdB;
  reg [4:0]  IDEX_instr_rt, IDEX_instr_rs, IDEX_instr_rd;                            
  reg        IDEX_RegDst, IDEX_ALUSrc, IDEX_ALUSrc_Shift, IDEX_Branch;
  reg [1:0]  IDEX_ALUcntrl;
@@ -84,6 +85,8 @@ assign PC_jump = {IFID_PC[31:28], (IFID_instr[25:0] << 2)}; // for jump instruct
 // Register file
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
 
+assign IDEX_rdA = rdA;
+assign IDEX_rdB = rdB;
 
 // IDEX pipeline register
  always @(posedge clock or negedge reset)
@@ -91,8 +94,6 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
     if (reset == 1'b0 || bubble_idex)
       begin
        IDEX_PC <= 1'b0;
-       IDEX_rdA <= 32'b0;    
-       IDEX_rdB <= 32'b0;
        IDEX_signExtend <= 32'b0;
        IDEX_instr_rd <= 5'b0;
        IDEX_instr_rs <= 5'b0;
@@ -123,8 +124,6 @@ RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_Reg
     else 
       begin
        IDEX_PC <= IFID_PC;
-       IDEX_rdA <= rdA;
-       IDEX_rdB <= rdB;
        IDEX_signExtend <= signExtend;
        IDEX_instr_rd <= instr_rd;
        IDEX_instr_rs <= instr_rs;

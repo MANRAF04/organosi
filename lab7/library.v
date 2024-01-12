@@ -78,35 +78,27 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
   reg [31:0] buffer;
 
   // Make sure  that register file is only written at the negative edge of the clock 
-  always @(negedge clock or negedge reset)
-   begin
+  always @(posedge clock or negedge reset) begin
     if (reset == 1'b0)
-        for (i = 0; i < 32; i = i+1)
-         data[i] = i;   // Note that R0 = 0 in MIPS 
-    else if( wen == 1'b1 && wa != 5'b0)
-        buffer <=  wd;
+      for (i = 0; i < 32; i = i+1)
+        data[i] = i;   // Note that R0 = 0 in MIPS 
+    else begin
+      if( wen == 1'b1  && wa != 5'b0) begin
+        data[wa] <=  wd;
+      end
+      if (raA == wa && wen == 1'b1 ) begin
+        rdA <= wd;
+      end
+      else begin
+          rdA <= data[raA];
+      end
+      if (raB == wa && wen == 1'b1 ) begin
+        rdB <= wd;
+      end
+      else begin
+          rdB <= data[raB];
+      end
+    end
    end
-
-  always @(posedge clock, raA, raB, wa, wen) begin
-
-    if (wa == raA && wen == 1'b1) begin
-      rdA = buffer;
-    end
-    else begin
-      rdA = data[raA];
-    end
-
-    if (wa == raB && wen == 1'b1) begin
-      rdB = buffer;
-    end
-    else begin
-      rdB = data[raB];
-    end
-
-    if (wen == 1'b1 && wa != 1'b0) begin
-      data[wa] = buffer;
-    end
-
-  end
 
 endmodule
