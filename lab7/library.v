@@ -75,7 +75,6 @@ module RegFile (clock, reset, raA, raB, wa, wen, wd, rdA, rdB);
   integer i;
   
   reg [31:0] data[31:0];
-  reg [31:0] buffer;
 
   // Make sure  that register file is only written at the negative edge of the clock 
   always @(posedge clock or negedge reset) begin
