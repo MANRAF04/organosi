@@ -85,6 +85,7 @@ assign PC_jump = {IFID_PC[31:28], (IFID_instr[25:0] << 2)}; // for jump instruct
 // Register file
 RegFile cpu_regs(clock, reset, instr_rs, instr_rt, MEMWB_RegWriteAddr, MEMWB_RegWrite, wRegData, rdA, rdB);
 
+// Forwarding rdA and rdB in case we read and write with the same register
 assign IDEX_rdA = rdA;
 assign IDEX_rdB = rdB;
 
