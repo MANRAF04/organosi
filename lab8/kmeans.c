@@ -10,7 +10,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-
+#define likely(x)    __builtin_expect(!!(x), 1)
+#define unlikely(x)  __builtin_expect(!!(x), 0)
 
 /* Creates a negative image of the input bitmap file */
 int main( int argc, char* argv[] )
@@ -22,15 +23,12 @@ int main( int argc, char* argv[] )
 	UINT    i;
 	MEANS*  means;   /* Holds the (R, G, B) means of each cluster  */
 	UINT    noClusters;   /* Number of of clusters. It is given by the user */
-	UINT    dist, minDist, minCluster, iter, maxIterations;
+	UINT    dist, minDist, minCluster, iter = 0, maxIterations = 10;
 	UINT    noOfMoves;     /* Total number of inter-cluster moves between two succesive iterations */
 	UINT    totr, totb, totg, sizeCluster;
-	UCHAR   bytes_per_pixel;
-	UINT    bytes_per_row;
-	UCHAR*  pixel;
 
 	/* Check arguments */
-	if ( argc != 4 )
+	if ( unlikely(argc != 4) )
 	{ 
 		fprintf( stderr, "Usage: %s <input file> <output files> <Number of Clusters>\n", argv[ 0 ] );
 		return 1;
@@ -44,8 +42,6 @@ int main( int argc, char* argv[] )
 	/* Get image's dimensions */
 	width = BMP_GetWidth( bmp );
 	height = BMP_GetHeight( bmp );
-	bytes_per_pixel = bmp->Header.BitsPerPixel >> 3;
-	bytes_per_row = bmp->Header.ImageDataSize / height;
 
 	noClusters = ( UINT ) atoi(argv[3]);   
 	means = (MEANS *) calloc( noClusters, sizeof( MEANS ) );
@@ -67,7 +63,7 @@ int main( int argc, char* argv[] )
     
     /* The cluster assignement for each pixel */
 	cluster = (UINT*) calloc( width*height, sizeof(UINT) );  /* Important to also initialize all entries to 0 */
-	if ( cluster == NULL )
+	if ( unlikely(cluster == NULL) )
 	{
         free( cluster );
 		free( bmp );
@@ -75,8 +71,6 @@ int main( int argc, char* argv[] )
 	}
 
 
-    maxIterations = 10;
-    iter = 0;
 
 
     /* Main loop runs at least once */ 
@@ -92,47 +86,50 @@ int main( int argc, char* argv[] )
 	         The output of phase 2 is the cluster* data structure.                    */
 
 
-	  for ( col = 0 ; col < width ; ++col ) {
 		for ( row = 0 ; row < height ; ++row)  {
+		  for ( col = 0 ; col < width ; ++col ) {
 
 		
 			/* Calculate the location of the relevant pixel (rows are flipped) */
-		    pixel = bmp->Data + ( ( bmp->Header.Height - row - 1 ) * bytes_per_row + col  * bytes_per_pixel );
+		    /*pixel = bmp->Data + ( ( bmp->Header.Height - row - 1 ) * bytes_per_row + col  * bytes_per_pixel );*/
           
             /* Get pixel's RGB values */
 			BMP_GetPixelRGB( bmp, col, row, &r, &g, &b );
 			
-            minDist = 10000; /* Larger than the lagest possible value */
+            minDist = 10000; /* Larger than the lagest possible value */ 
 			for (i = 0; i < noClusters; ++i) {
 
                 /* Distance metric. May replace with something cheaper */
-				dist = (UINT) sqrt((r-means[i].r)*(r-means[i].r) + (g-means[i].g)*(g-means[i].g) + (b-means[i].b)*(b-means[i].b));
-                if (dist < minDist) {
-                	  minDist = dist;
-                	  minCluster = i;
+				dist = (UINT) (r-means[i].r)*(r-means[i].r) + (g-means[i].g)*(g-means[i].g) + (b-means[i].b)*(b-means[i].b);
+				minCluster = (dist < minDist) ? i : minCluster;
+				minDist = (dist < minDist) ? dist : minDist;
 
-                }
 			}
-            
-            if (*(cluster+row*width + col) != minCluster) {
 
-            	 *(cluster+row*width + col) = minCluster;
-            	 ++noOfMoves;
-            }
+		UINT* currentCluster = cluster + row * width + col;
+
+			if (likely(*currentCluster == minCluster)) {
+				continue;
+			}
+
+			*currentCluster = minCluster;
+			noOfMoves = 1;
+
+            
 
 		}   /* for */
 	   }  /* for */
 
 
      /* 3. Update the mean of each cluster based on the pixels assigned to them. */
-      if (noOfMoves > 0) {
+      if (noOfMoves == 1) {
       	  for (i = 0; i < noClusters; ++i) {
 
             totr = totb = totg = 0;
             sizeCluster = 0;
 
-	  for ( col = 0 ; col < width ; ++col ) {
 		for ( row = 0 ; row < height ; ++row)  {
+	  		for ( col = 0 ; col < width ; ++col ) {
 
                     if (*(cluster+row*width + col) == i) {
 		                  BMP_GetPixelRGB( bmp, col, row, &r, &g, &b );
@@ -140,35 +137,34 @@ int main( int argc, char* argv[] )
 	       	             totg += g;
 	       	             totb += b;
                          sizeCluster++;
-
                     }
-
 		       }
 		   }
 
-		   means[i].r = (UCHAR) (totr/sizeCluster);
-		   means[i].g = (UCHAR) (totg/sizeCluster);
-		   means[i].b = (UCHAR) (totb/sizeCluster);
+		double reciprocalSizeCluster = 1.0 / sizeCluster;
+		means[i].r = (UCHAR)(totr * reciprocalSizeCluster);
+    	means[i].g = (UCHAR)(totg * reciprocalSizeCluster);
+    	means[i].b = (UCHAR)(totb * reciprocalSizeCluster);
 
 		  }
               
       }
 
        /* 4. Goto 2 if not convergence and less than a max number of iterations. Else goto 5 */
-    } while ((iter < maxIterations) && (noOfMoves > 0));
+    } while ((iter < maxIterations) && (noOfMoves == 1));
 
 
 
     for (i = 0; i < noClusters; ++i) {
-       printf("means[%ld] = (%d, %d, %d)\n", i, means[i].r, means[i].g, means[i].b);
+       printf("means[%lu] = (%d, %d, %d)\n", i, means[i].r, means[i].g, means[i].b);
     }
     
 
     /* 5. Replace the pixel of the original image with the mean of the corresponding cluster */
 
 
-	  for ( col = 0 ; col < width ; ++col ) {
-		for ( row = 0 ; row < height ; ++row)  {
+	for ( row = 0 ; row < height ; ++row)  {
+	  	for ( col = 0 ; col < width ; ++col ) {
             
             i = *(cluster+row*width + col);
             r = means[i].r;
@@ -196,5 +192,3 @@ int main( int argc, char* argv[] )
 
 	return 0;
 }
-
- 
