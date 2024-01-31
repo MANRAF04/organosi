@@ -96,7 +96,7 @@ int main( int argc, char* argv[] )
             /* Get pixel's RGB values */
 			BMP_GetPixelRGB( bmp, col, row, &r, &g, &b );
 			
-            minDist = 10000; /* Larger than the lagest possible value */ 
+            minDist = 16384; /* Larger than the lagest possible value (and a power of 2) */ 
 			for (i = 0; i < noClusters; ++i) {
 
                 /* Distance metric. May replace with something cheaper */
