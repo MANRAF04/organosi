@@ -8,7 +8,6 @@
 #include "qdbmp.h"     
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <time.h>
 #include <omp.h>
 
@@ -84,7 +83,7 @@ int main( int argc, char* argv[] )
 	   /* 2. Go through each pixel in the input image and calculate its nearest mean. 
 	         The output of phase 2 is the cluster* data structure.                    */
 
-
+		#pragma omp parallel for
 		for ( row = 0 ; row < height ; ++row)  {
 		  for ( col = 0 ; col < width ; ++col ) {
 
@@ -127,6 +126,7 @@ int main( int argc, char* argv[] )
             totr = totb = totg = 0;
             sizeCluster = 0;
 
+		#pragma omp parallel for
 		for ( row = 0 ; row < height ; ++row)  {
 	  		for ( col = 0 ; col < width ; ++col ) {
 
@@ -161,7 +161,7 @@ int main( int argc, char* argv[] )
 
     /* 5. Replace the pixel of the original image with the mean of the corresponding cluster */
 
-
+	#pragma omp parallel for
 	for ( row = 0 ; row < height ; ++row)  {
 	  	for ( col = 0 ; col < width ; ++col ) {
             
