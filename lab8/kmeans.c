@@ -10,8 +10,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
-#define likely(x)    __builtin_expect(!!(x), 1)
-#define unlikely(x)  __builtin_expect(!!(x), 0)
+#include <omp.h>
 
 /* Creates a negative image of the input bitmap file */
 int main( int argc, char* argv[] )
@@ -28,7 +27,7 @@ int main( int argc, char* argv[] )
 	UINT    totr, totb, totg, sizeCluster;
 
 	/* Check arguments */
-	if ( unlikely(argc != 4) )
+	if ( __builtin_expect(argc != 4,0) )
 	{ 
 		fprintf( stderr, "Usage: %s <input file> <output files> <Number of Clusters>\n", argv[ 0 ] );
 		return 1;
@@ -63,7 +62,7 @@ int main( int argc, char* argv[] )
     
     /* The cluster assignement for each pixel */
 	cluster = (UINT*) calloc( width*height, sizeof(UINT) );  /* Important to also initialize all entries to 0 */
-	if ( unlikely(cluster == NULL) )
+	if ( __builtin_expect(cluster == NULL,0) )
 	{
         free( cluster );
 		free( bmp );
@@ -108,7 +107,7 @@ int main( int argc, char* argv[] )
 
 		UINT* currentCluster = cluster + row * width + col;
 
-			if (likely(*currentCluster == minCluster)) {
+			if (__builtin_expect(*currentCluster == minCluster,1)) {
 				continue;
 			}
 
