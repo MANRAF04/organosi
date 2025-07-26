@@ -1,4 +1,4 @@
-# Organosi kai Sxediash Ypologistwn Labs Repository
+# Computer Organization and Design" Repository
 
 This repository contains lab assignments for the course "Computer Organization and Design". The labs cover a range of topics in computer architecture, digital design, assembly programming, C programming, and parallel computing. Each lab folder contains source code, documentation, and related files for the respective assignment.
 
