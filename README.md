@@ -1,45 +1,238 @@
-# Computer Organization and Design Repository
+# Computer Organization and Design (Organosi kai Sxediash Ypologistwn) - Lab Repository
 
-This repository contains lab assignments for the course "Computer Organization and Design". The labs cover a range of topics in computer architecture, digital design, assembly programming, C programming, and parallel computing. Each lab folder contains source code, documentation, and related files for the respective assignment.
+This repository contains comprehensive lab assignments for the "Computer Organization and Design" course, covering fundamental concepts in computer engineering from low-level assembly programming to high-level parallel computing implementations.
 
-## Course Overview
-The course introduces students to fundamental concepts in computer engineering, including:
-- Assembly language programming
-- Digital logic design using Verilog
-- CPU architecture and control
-- C programming for performance
-- Parallel and multithreaded programming
+## 📚 Course Overview
 
-## Lab Summaries
+The course provides hands-on experience with:
+- **Assembly Language Programming** (MIPS architecture)
+- **Digital Logic Design** using Verilog HDL
+- **CPU Architecture and Control Unit Design**
+- **Performance-oriented C Programming**
+- **Parallel and Multithreaded Programming** (OpenMP, pthreads)
+- **Memory Management and Optimization**
 
-### lab1: Assembly Programming
-Basic exercises in assembly language, focusing on arithmetic operations and control flow.
+## 🛠️ Prerequisites and Tools
 
-### lab2: Advanced Assembly
-More complex assembly tasks, including subroutines and file I/O.
+### Required Software:
+- **Assembly Labs (1-3):** MIPS simulator (MARS or SPIM)
+- **Verilog Labs (4, 6-7):** 
+  - Icarus Verilog (`iverilog`) for simulation
+  - GTKWave for waveform visualization
+- **C Programming Labs (8-9):**
+  - GCC compiler with OpenMP support
+  - Standard C libraries
 
-### lab3: Assembly Practice
-Additional assembly exercises to reinforce concepts.
+### Installation (Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install iverilog gtkwave gcc libomp-dev build-essential
+```
 
-### lab4: Digital Logic Design
-Design and simulation of digital circuits using Verilog. Includes testbenches and documentation.
+## 📁 Lab Structure and Detailed Usage
 
-### lab6: CPU Architecture
-Implementation and simulation of a simple CPU in Verilog. Includes control logic and test programs.
+### Lab 1: Assembly Programming Fundamentals
+**Files:** `ask1.asm`, `ask2.asm`
 
-### lab7: Advanced CPU Design
-Further development of CPU architecture, with enhancements and more complex control logic.
+**Objectives:**
+- Basic MIPS assembly syntax and operations
+- Integer input/output using system calls
+- Bitwise operations and leading zero counting
+- Control flow and conditional branching
 
-### lab8: Parallel Programming in C
-K-means clustering implementation in C, with OpenMP and pthreads for parallelization. Includes BMP image processing.
+**Usage:**
+```bash
+cd lab1
+# Run with MARS simulator or SPIM
+mars ask1.asm
+```
 
-### lab9: Performance and Memory Usage
-C programs for measuring memory usage and optimizing loops for performance.
+**Example:** `ask1.asm` implements a leading zero counter that takes an integer input and calculates the number of leading zeros in its binary representation.
 
-## Usage
-Each lab folder contains source files and instructions. Refer to the PDF documents in each lab for detailed descriptions and requirements.
+### Lab 2: Advanced Assembly Programming
+**Files:** `ask1.asm`, `ask2.asm`, `ex2.asm`
 
-## Author
-Emmanouil Raftopoulos
+**Objectives:**
+- Advanced MIPS programming techniques
+- Subroutines and function calls
+- File I/O operations
+- Complex data manipulation
 
-Charalampos Zachariadis
+**Usage:**
+```bash
+cd lab2
+mars ask1.asm
+```
+
+### Lab 3: Assembly Practice
+**Files:** `ask1.asm`
+
+**Objectives:**
+- Reinforcement of assembly concepts
+- Problem-solving using assembly language
+- Optimization techniques
+
+### Lab 4: Digital Logic Design
+**Files:** `library.v`, `testbench.v`, `Lab4.pdf`
+
+**Objectives:**
+- Introduction to Verilog HDL
+- Digital circuit design and simulation
+- Testbench creation and verification
+
+**Usage:**
+```bash
+cd lab4
+iverilog -o test library.v testbench.v
+vvp test
+# View waveforms (if VCD file generated)
+gtkwave tb_dumpfile.vcd
+```
+
+### Lab 6: CPU Architecture Implementation
+**Files:** `cpu.v`, `control.v`, `library.v`, `testbench.v`, `program.asm`, `Makefile`
+
+**Objectives:**
+- Design and implement a simple CPU in Verilog
+- Control unit logic implementation
+- Instruction fetch, decode, and execute cycles
+- Assembly program execution on custom CPU
+
+**Usage:**
+```bash
+cd lab6
+make all  # Compiles, simulates, and opens waveform viewer
+# Or manually:
+iverilog -Wall -Winfloop -o lab6a.out control.v library.v cpu.v testbench.v
+vvp lab6a.out
+gtkwave tb_dumpfile.vcd
+```
+
+**Features:**
+- Custom instruction set architecture
+- Program memory loaded from `program.hex`
+- Comprehensive testbench with waveform output
+
+### Lab 7: Advanced CPU Design
+**Files:** Similar to Lab 6 with enhancements
+
+**Objectives:**
+- Enhanced CPU architecture
+- Advanced control logic
+- Performance improvements
+- Extended instruction set
+
+**Usage:**
+```bash
+cd lab7
+make all
+```
+
+### Lab 8: Parallel Programming - K-means Clustering
+**Files:** `kmeans.c`, `kmeans_omp2.c`, `qdbmp.c`, `qdbmp.h`, `Makefile`
+
+**Objectives:**
+- Implement K-means clustering algorithm
+- Parallel programming with OpenMP
+- Image processing using BMP format
+- Performance comparison between serial and parallel implementations
+
+**Usage:**
+```bash
+cd lab8
+make all  # Compiles standard version
+gcc -O3 -fopenmp -o kmeans_omp kmeans_omp2.c qdbmp.c  # OpenMP version
+
+# Run clustering
+./kmeans input.bmp output.bmp k_value
+./kmeans_omp input.bmp output.bmp k_value
+```
+
+**Features:**
+- BMP image processing library
+- Multiple parallelization approaches (OpenMP, pthreads)
+- Performance optimization flags (`-O3`, `-Ofast`)
+
+### Lab 9: Performance Analysis and Memory Management
+**Files:** `lab9_program.c`, `getmemusage.c`, `loop1`, `loop2`, `Lab9.pdf`
+
+**Objectives:**
+- Memory usage analysis and optimization
+- Loop optimization techniques
+- Performance measurement and profiling
+- Cache efficiency analysis
+
+**Usage:**
+```bash
+cd lab9
+gcc -O2 -o lab9_program lab9_program.c
+./lab9_program
+
+# Memory usage analysis
+gcc -o getmemusage getmemusage.c
+./getmemusage
+
+# Compare optimized vs unoptimized loops
+./loop1 vs ./loop1_opt
+./loop2 vs ./loop2_opt
+```
+
+## 🔧 Build and Compilation Guide
+
+### Verilog Projects (Labs 4, 6, 7):
+```bash
+# Standard compilation
+iverilog -Wall -Winfloop -o output_file source_files.v
+
+# Run simulation
+vvp output_file
+
+# View waveforms
+gtkwave waveform_file.vcd
+```
+
+### C Projects (Labs 8, 9):
+```bash
+# Standard compilation
+gcc -O3 -Wall -std=c99 -o executable source.c
+
+# OpenMP compilation
+gcc -O3 -fopenmp -Wall -std=c99 -o executable source.c
+
+# Performance optimization
+gcc -Ofast -march=native -o executable source.c
+```
+
+## 📊 Performance Notes
+
+- **Assembly Labs:** Focus on instruction efficiency and register usage
+- **Verilog Labs:** Emphasize timing analysis and resource utilization
+- **C Labs:** Leverage compiler optimizations and parallel processing
+
+## 📖 Documentation
+
+Each lab includes detailed PDF documentation (`Lab*.pdf`) containing:
+- Theoretical background
+- Implementation requirements
+- Expected outputs
+- Performance analysis guidelines
+
+## 👥 Authors
+
+- **Emmanouil Raftopoulos**
+- **Charalampos Zachariadis**
+
+## 🚀 Getting Started
+
+1. Clone the repository
+2. Install required tools (see Prerequisites section)
+3. Navigate to desired lab directory
+4. Follow lab-specific usage instructions
+5. Refer to PDF documentation for detailed requirements
+
+## 📝 Notes
+
+- All assembly code is written for MIPS architecture
+- Verilog code is synthesizable and tested with Icarus Verilog
+- C programs are optimized for performance and include parallel implementations
+- Some labs include multiple solution approaches for comparison
