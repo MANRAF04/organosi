@@ -1,170 +1,326 @@
-# Computer Organization and Design (Organosi kai Sxediash Ypologistwn) - Lab Repository
+<div align="center">
 
-This repository contains comprehensive lab assignments for the "Computer Organization and Design" course, covering fundamental concepts in computer engineering from low-level assembly programming to high-level parallel computing implementations.
+# 🖥️ Computer Organization and Design
+### *Organosi kai Sxediash Ypologistwn*
+
+[![Course](https://img.shields.io/badge/Course-Computer%20Architecture-blue?style=for-the-badge)](https://github.com)
+[![Language](https://img.shields.io/badge/Assembly-MIPS-red?style=for-the-badge)](https://github.com)
+[![HDL](https://img.shields.io/badge/HDL-Verilog-green?style=for-the-badge)](https://github.com)
+[![Parallel](https://img.shields.io/badge/Parallel-OpenMP-orange?style=for-the-badge)](https://github.com)
+
+*Comprehensive lab assignments covering fundamental concepts in computer engineering*
+
+---
+
+</div>
+
+## 📋 Table of Contents
+
+- [📚 Course Overview](#-course-overview)
+- [🛠️ Prerequisites & Setup](#️-prerequisites--setup)
+- [🔬 Laboratory Assignments](#-laboratory-assignments)
+- [🏗️ Build & Compilation](#️-build--compilation)
+- [📊 Performance Guidelines](#-performance-guidelines)
+- [📖 Documentation](#-documentation)
+- [👥 Contributors](#-contributors)
+- [🚀 Quick Start](#-quick-start)
+
+---
 
 ## 📚 Course Overview
 
-The course provides hands-on experience with:
-- **Assembly Language Programming** (MIPS architecture)
-- **Digital Logic Design** using Verilog HDL
-- **CPU Architecture and Control Unit Design**
-- **Performance-oriented C Programming**
-- **Parallel and Multithreaded Programming** (OpenMP, pthreads)
-- **Memory Management and Optimization**
+<div align="center">
 
-## 🛠️ Prerequisites and Tools
+| **Domain** | **Technologies** | **Skills Developed** |
+|------------|------------------|---------------------|
+| 🔧 **Low-Level Programming** | MIPS Assembly | System calls, bitwise operations, control flow |
+| ⚡ **Digital Design** | Verilog HDL | Circuit design, simulation, verification |
+| 🖥️ **Computer Architecture** | Custom CPU Design | Instruction sets, control units, datapaths |
+| 🚀 **High-Performance Computing** | C + OpenMP/pthreads | Parallel algorithms, optimization |
+| 📈 **Performance Analysis** | Profiling Tools | Memory management, cache optimization |
 
-### Required Software:
-- **Assembly Labs (1-3):** MIPS simulator (MARS or SPIM)
-- **Verilog Labs (4, 6-7):** 
-  - Icarus Verilog (`iverilog`) for simulation
-  - GTKWave for waveform visualization
-- **C Programming Labs (8-9):**
-  - GCC compiler with OpenMP support
-  - Standard C libraries
+</div>
 
-### Installation (Ubuntu/Debian):
-```bash
-sudo apt update
-sudo apt install iverilog gtkwave gcc libomp-dev build-essential
+### 🎯 Learning Objectives
+
+```mermaid
+graph LR
+    A[Assembly Programming] --> B[Digital Logic Design]
+    B --> C[CPU Architecture]
+    C --> D[Performance Optimization]
+    D --> E[Parallel Computing]
 ```
 
-## 📁 Lab Structure and Detailed Usage
+---
 
-### Lab 1: Assembly Programming Fundamentals
-**Files:** `ask1.asm`, `ask2.asm`
+## 🛠️ Prerequisites & Setup
 
-**Objectives:**
-- Basic MIPS assembly syntax and operations
-- Integer input/output using system calls
-- Bitwise operations and leading zero counting
-- Control flow and conditional branching
+### 📦 Required Software Stack
 
-**Usage:**
+<details>
+<summary><b>🔧 Development Tools (Click to expand)</b></summary>
+
+| **Tool Category** | **Software** | **Purpose** |
+|-------------------|--------------|-------------|
+| **Assembly Simulation** | MARS/SPIM | MIPS program execution |
+| **HDL Simulation** | Icarus Verilog | Verilog compilation & simulation |
+| **Waveform Analysis** | GTKWave | Signal visualization |
+| **C/C++ Development** | GCC + OpenMP | High-performance compilation |
+
+</details>
+
+### 🐧 Installation (Ubuntu/Debian)
+
+```bash
+# Update package repositories
+sudo apt update && sudo apt upgrade -y
+
+# Install Verilog development suite
+sudo apt install -y iverilog gtkwave
+
+# Install C/C++ development tools
+sudo apt install -y gcc build-essential libomp-dev
+
+# Install additional utilities
+sudo apt install -y make git wget curl
+```
+
+### 🍎 Installation (macOS)
+
+```bash
+# Using Homebrew
+brew install icarus-verilog gtkwave gcc
+```
+
+### 🪟 Installation (Windows)
+
+- Download MARS from [Missouri State University](http://courses.missouristate.edu/KenVollmar/mars/)
+- Install [Icarus Verilog for Windows](http://bleyer.org/icarus/)
+- Use WSL2 for Linux-compatible development
+
+---
+
+## 🔬 Laboratory Assignments
+
+### 🏁 Lab 1: Assembly Programming Fundamentals
+<div align="center">
+
+![Assembly](https://img.shields.io/badge/Type-Assembly-red?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Beginner-green?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-2%20weeks-blue?style=flat-square)
+
+</div>
+
+**📁 Files:** `ask1.asm`, `ask2.asm`
+
+**🎯 Learning Goals:**
+- Master MIPS assembly syntax and instruction set
+- Implement bitwise operations and arithmetic
+- Handle user input/output through system calls
+- Develop efficient counting algorithms
+
+**💡 Key Implementation:**
+> **Leading Zero Counter** - Calculates the number of leading zeros in a 32-bit integer using bit manipulation techniques.
+
 ```bash
 cd lab1
-# Run with MARS simulator or SPIM
-mars ask1.asm
+mars ask1.asm  # Run with MARS simulator
 ```
 
-**Example:** `ask1.asm` implements a leading zero counter that takes an integer input and calculates the number of leading zeros in its binary representation.
+---
 
-### Lab 2: Advanced Assembly Programming
-**Files:** `ask1.asm`, `ask2.asm`, `ex2.asm`
+### 🔄 Lab 2: Advanced Assembly Techniques
+<div align="center">
 
-**Objectives:**
-- Advanced MIPS programming techniques
-- Subroutines and function calls
-- File I/O operations
-- Complex data manipulation
+![Assembly](https://img.shields.io/badge/Type-Assembly-red?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Intermediate-yellow?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-2%20weeks-blue?style=flat-square)
 
-**Usage:**
+</div>
+
+**📁 Files:** `ask1.asm`, `ask2.asm`, `ex2.asm`
+
+**🎯 Learning Goals:**
+- Advanced MIPS programming patterns
+- Subroutine design and stack management
+- File I/O operations and error handling
+- Complex algorithmic implementations
+
 ```bash
 cd lab2
 mars ask1.asm
 ```
 
-### Lab 3: Assembly Practice
-**Files:** `ask1.asm`
+---
 
-**Objectives:**
-- Reinforcement of assembly concepts
-- Problem-solving using assembly language
-- Optimization techniques
+### 🎯 Lab 3: Assembly Mastery
+<div align="center">
 
-### Lab 4: Digital Logic Design
-**Files:** `library.v`, `testbench.v`, `Lab4.pdf`
+![Assembly](https://img.shields.io/badge/Type-Assembly-red?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Advanced-orange?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-1%20week-blue?style=flat-square)
 
-**Objectives:**
-- Introduction to Verilog HDL
-- Digital circuit design and simulation
-- Testbench creation and verification
+</div>
 
-**Usage:**
+**📁 Files:** `ask1.asm`
+
+**🎯 Learning Goals:**
+- Assembly optimization techniques
+- Complex problem-solving strategies
+- Code efficiency and performance tuning
+
+---
+
+### ⚡ Lab 4: Digital Logic Design
+<div align="center">
+
+![Verilog](https://img.shields.io/badge/Type-Verilog-green?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Intermediate-yellow?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-3%20weeks-blue?style=flat-square)
+
+</div>
+
+**📁 Files:** `library.v`, `testbench.v`, `Lab4.pdf`
+
+**🎯 Learning Goals:**
+- Verilog HDL syntax and modeling techniques
+- Combinational and sequential circuit design
+- Testbench development and verification
+- Simulation and debugging workflows
+
 ```bash
 cd lab4
 iverilog -o test library.v testbench.v
 vvp test
-# View waveforms (if VCD file generated)
-gtkwave tb_dumpfile.vcd
+gtkwave tb_dumpfile.vcd  # Visualize waveforms
 ```
 
-### Lab 6: CPU Architecture Implementation
-**Files:** `cpu.v`, `control.v`, `library.v`, `testbench.v`, `program.asm`, `Makefile`
+---
 
-**Objectives:**
-- Design and implement a simple CPU in Verilog
-- Control unit logic implementation
-- Instruction fetch, decode, and execute cycles
-- Assembly program execution on custom CPU
+### 🖥️ Lab 6: CPU Architecture Implementation
+<div align="center">
 
-**Usage:**
+![Verilog](https://img.shields.io/badge/Type-Verilog-green?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Advanced-orange?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-4%20weeks-blue?style=flat-square)
+
+</div>
+
+**📁 Core Files:** `cpu.v`, `control.v`, `library.v`, `testbench.v`, `program.asm`
+
+**🎯 Learning Goals:**
+- Complete CPU design from scratch
+- Control unit and datapath integration
+- Instruction set architecture (ISA) implementation
+- Assembly program execution verification
+
+**🔧 Advanced Features:**
+- ✅ Custom instruction set architecture
+- ✅ Program memory initialization from hex files
+- ✅ Comprehensive waveform analysis
+- ✅ Automated build system with Makefile
+
 ```bash
 cd lab6
-make all  # Compiles, simulates, and opens waveform viewer
-# Or manually:
-iverilog -Wall -Winfloop -o lab6a.out control.v library.v cpu.v testbench.v
-vvp lab6a.out
-gtkwave tb_dumpfile.vcd
+make all  # One-command build, simulate, and visualize
 ```
 
-**Features:**
-- Custom instruction set architecture
-- Program memory loaded from `program.hex`
-- Comprehensive testbench with waveform output
+**🔍 Manual Execution:**
+```bash
+iverilog -Wall -Winfloop -o lab6a.out control.v library.v cpu.v testbench.v
+vvp lab6a.out
+gtkwave tb_dumpfile.vcd waveform.gtkw
+```
 
-### Lab 7: Advanced CPU Design
-**Files:** Similar to Lab 6 with enhancements
+---
 
-**Objectives:**
-- Enhanced CPU architecture
-- Advanced control logic
-- Performance improvements
-- Extended instruction set
+### 🚀 Lab 7: Enhanced CPU Architecture
+<div align="center">
 
-**Usage:**
+![Verilog](https://img.shields.io/badge/Type-Verilog-green?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Expert-red?style=flat-square)
+![Duration](https://img.shields.io/badge/Duration-4%20weeks-blue?style=flat-square)
+
+</div>
+
+**🎯 Learning Goals:**
+- Advanced CPU optimization techniques
+- Extended instruction set implementation
+- Performance enhancement strategies
+- Complex control logic design
+
 ```bash
 cd lab7
 make all
 ```
 
-### Lab 8: Parallel Programming - K-means Clustering
-**Files:** `kmeans.c`, `kmeans_omp2.c`, `qdbmp.c`, `qdbmp.h`, `Makefile`
+---
 
-**Objectives:**
-- Implement K-means clustering algorithm
-- Parallel programming with OpenMP
-- Image processing using BMP format
-- Performance comparison between serial and parallel implementations
+### 🔄 Lab 8: Parallel Programming - K-means Clustering
+<div align="center">
 
-**Usage:**
+![C](https://img.shields.io/badge/Type-C%20Programming-blue?style=flat-square)
+![Parallel](https://img.shields.io/badge/Parallel-OpenMP-orange?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Advanced-orange?style=flat-square)
+
+</div>
+
+**📁 Core Files:** `kmeans.c`, `kmeans_omp2.c`, `qdbmp.c`, `qdbmp.h`
+
+**🎯 Learning Goals:**
+- Machine learning algorithm implementation
+- Parallel programming with OpenMP and pthreads
+- Image processing and BMP format handling
+- Performance comparison and optimization
+
+**🖼️ Features:**
+- 🎨 BMP image processing library
+- ⚡ Multiple parallelization strategies
+- 📊 Performance benchmarking tools
+- 🔧 Compiler optimization flags
+
 ```bash
 cd lab8
-make all  # Compiles standard version
-gcc -O3 -fopenmp -o kmeans_omp kmeans_omp2.c qdbmp.c  # OpenMP version
+# Standard sequential version
+make all
 
-# Run clustering
-./kmeans input.bmp output.bmp k_value
-./kmeans_omp input.bmp output.bmp k_value
+# OpenMP parallel version
+gcc -O3 -fopenmp -o kmeans_omp kmeans_omp2.c qdbmp.c
+
+# Execute clustering
+./kmeans input.bmp output.bmp 8      # 8 clusters
+./kmeans_omp input.bmp output.bmp 8  # Parallel version
 ```
 
-**Features:**
-- BMP image processing library
-- Multiple parallelization approaches (OpenMP, pthreads)
-- Performance optimization flags (`-O3`, `-Ofast`)
+**🧪 Alternative Implementations:**
+```bash
+# Explore different parallelization approaches
+cd multithreading_tries/
+gcc -O3 -pthread -o kmeans_pthread kmeans_pthread.c ../qdbmp.c
+```
 
-### Lab 9: Performance Analysis and Memory Management
-**Files:** `lab9_program.c`, `getmemusage.c`, `loop1`, `loop2`, `Lab9.pdf`
+---
 
-**Objectives:**
-- Memory usage analysis and optimization
-- Loop optimization techniques
-- Performance measurement and profiling
-- Cache efficiency analysis
+### 📊 Lab 9: Performance Analysis & Memory Optimization
+<div align="center">
 
-**Usage:**
+![C](https://img.shields.io/badge/Type-C%20Programming-blue?style=flat-square)
+![Performance](https://img.shields.io/badge/Focus-Performance-purple?style=flat-square)
+![Difficulty](https://img.shields.io/badge/Difficulty-Advanced-orange?style=flat-square)
+
+</div>
+
+**📁 Files:** `lab9_program.c`, `getmemusage.c`, `loop1`, `loop2`
+
+**🎯 Learning Goals:**
+- Memory usage profiling and analysis
+- Loop optimization and vectorization
+- Cache efficiency and performance tuning
+- Compiler optimization exploration
+
 ```bash
 cd lab9
+# Compile and run main program
 gcc -O2 -o lab9_program lab9_program.c
 ./lab9_program
 
@@ -172,67 +328,152 @@ gcc -O2 -o lab9_program lab9_program.c
 gcc -o getmemusage getmemusage.c
 ./getmemusage
 
-# Compare optimized vs unoptimized loops
-./loop1 vs ./loop1_opt
-./loop2 vs ./loop2_opt
+# Performance comparison
+time ./loop1 && time ./loop1_opt
+time ./loop2 && time ./loop2_opt
 ```
 
-## 🔧 Build and Compilation Guide
+---
 
-### Verilog Projects (Labs 4, 6, 7):
+## 🏗️ Build & Compilation
+
+### ⚡ Verilog HDL Projects
+
+<details>
+<summary><b>🔧 Compilation Commands</b></summary>
+
 ```bash
-# Standard compilation
-iverilog -Wall -Winfloop -o output_file source_files.v
+# Standard compilation with warnings
+iverilog -Wall -Winfloop -o <output> <source_files.v>
 
-# Run simulation
-vvp output_file
+# Execute simulation
+vvp <output_file>
 
-# View waveforms
-gtkwave waveform_file.vcd
+# Advanced simulation with timing
+iverilog -g2012 -Wall -o <output> <source_files.v>
+
+# Generate VCD for waveform analysis
+# (ensure $dumpfile and $dumpvars in testbench)
+gtkwave <waveform_file.vcd>
 ```
 
-### C Projects (Labs 8, 9):
+</details>
+
+### 🚀 C/C++ Projects
+
+<details>
+<summary><b>🔧 Optimization Levels</b></summary>
+
 ```bash
-# Standard compilation
-gcc -O3 -Wall -std=c99 -o executable source.c
+# Debug build
+gcc -g -Wall -std=c99 -o <executable> <source.c>
 
-# OpenMP compilation
-gcc -O3 -fopenmp -Wall -std=c99 -o executable source.c
+# Standard optimization
+gcc -O2 -Wall -std=c99 -o <executable> <source.c>
 
-# Performance optimization
-gcc -Ofast -march=native -o executable source.c
+# High-performance build
+gcc -O3 -march=native -funroll-loops -o <executable> <source.c>
+
+# OpenMP parallel compilation
+gcc -O3 -fopenmp -Wall -std=c99 -o <executable> <source.c>
+
+# Maximum optimization (use with caution)
+gcc -Ofast -march=native -flto -o <executable> <source.c>
 ```
 
-## 📊 Performance Notes
+</details>
 
-- **Assembly Labs:** Focus on instruction efficiency and register usage
-- **Verilog Labs:** Emphasize timing analysis and resource utilization
-- **C Labs:** Leverage compiler optimizations and parallel processing
+---
+
+## 📊 Performance Guidelines
+
+### 🎯 Optimization Strategies
+
+| **Lab Type** | **Focus Area** | **Key Techniques** |
+|--------------|----------------|--------------------|
+| **Assembly** | Instruction Efficiency | Register reuse, loop unrolling, branch prediction |
+| **Verilog** | Hardware Resources | Timing analysis, resource sharing, pipeline design |
+| **C Programs** | Computational Speed | Compiler flags, algorithmic optimization, parallelization |
+
+### 📈 Benchmarking Best Practices
+
+```bash
+# Timing measurements
+time ./program_name
+
+# Memory profiling
+valgrind --tool=massif ./program_name
+
+# CPU profiling  
+perf record ./program_name
+perf report
+```
+
+---
 
 ## 📖 Documentation
 
-Each lab includes detailed PDF documentation (`Lab*.pdf`) containing:
-- Theoretical background
-- Implementation requirements
-- Expected outputs
-- Performance analysis guidelines
+Each laboratory includes comprehensive documentation:
 
-## 👥 Authors
+- 📋 **Theoretical Background** - Concepts and principles
+- 🎯 **Implementation Requirements** - Detailed specifications
+- 📊 **Expected Outputs** - Sample results and verification
+- 📈 **Performance Analysis** - Optimization guidelines
+- 🔬 **Testing Procedures** - Validation methodologies
 
-- **Emmanouil Raftopoulos**
-- **Charalampos Zachariadis**
+---
 
-## 🚀 Getting Started
+## 👥 Contributors
 
-1. Clone the repository
-2. Install required tools (see Prerequisites section)
-3. Navigate to desired lab directory
-4. Follow lab-specific usage instructions
-5. Refer to PDF documentation for detailed requirements
+<div align="center">
 
-## 📝 Notes
+| **Author** | **Role** | **Contribution** |
+|------------|----------|------------------|
+| **Emmanouil Raftopoulos** | Co-Developer | Architecture design, Verilog implementation |
+| **Charalampos Zachariadis** | Co-Developer | Assembly programming, C optimization |
 
-- All assembly code is written for MIPS architecture
-- Verilog code is synthesizable and tested with Icarus Verilog
-- C programs are optimized for performance and include parallel implementations
-- Some labs include multiple solution approaches for comparison
+</div>
+
+---
+
+## 🚀 Quick Start
+
+### 1️⃣ **Clone Repository**
+```bash
+git clone <repository-url>
+cd organosi-main
+```
+
+### 2️⃣ **Install Dependencies**
+```bash
+sudo apt install iverilog gtkwave gcc libomp-dev build-essential
+```
+
+### 3️⃣ **Choose Your Lab**
+```bash
+cd lab[1-9]  # Navigate to desired lab
+```
+
+### 4️⃣ **Follow Lab Instructions**
+- Read the corresponding `Lab*.pdf` documentation
+- Execute the provided build commands
+- Analyze results and waveforms
+
+### 5️⃣ **Explore and Learn**
+- Modify parameters and observe changes
+- Compare different implementation approaches
+- Benchmark performance improvements
+
+---
+
+<div align="center">
+
+### 🎓 *Academic Excellence in Computer Engineering*
+
+[![Made with ❤️](https://img.shields.io/badge/Made%20with-❤️-red?style=for-the-badge)](https://github.com)
+
+---
+
+*"Understanding computers from the ground up - from electrons to algorithms"*
+
+</div>
